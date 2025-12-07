@@ -1,183 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>EUROHINCA Inventory Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <title>EUROHINCA Stock Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
 :root {
-  --bg: #ececf6;
-  --panel: #fff;
-  --accent: #5A51E8;
-  --accent2: #FEA727;
-  --accent3: #F6F8FB;
-  --gray: #b6bac8;
-  --fullness-low: #fe8b71;
-  --fullness-mid: #f7b633;
-  --fullness-ok: #90e867;
-  --dark: #373a47;
+  --color-bg: #f8f9fc;
+  --glass-bg: rgba(255,255,255,0.95);
+  --glass-border: rgba(40, 80, 220, 0.08);
+  --accent: #5b7cf7;
+  --accent2: #f7b633;
+  --accent-light: #eef2ff;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --border: #e2e8f0;
 }
+* { box-sizing: border-box; }
 body {
-  background: var(--bg);
-  margin:0; font-family: 'Inter',sans-serif;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg,#f0f4ff 0%,#e8ecfa 100%);
+  min-height:100vh; margin:0; color: var(--text);
 }
-#app-wrap {
-  margin:0 auto; max-width:1420px; display:flex; min-height:100vh;
+.main-container {
+  display:flex; max-width:1400px; margin:20px auto; border-radius:16px;
+  box-shadow:0 4px 24px rgba(80,90,155,0.08); overflow:hidden; min-height: calc(100vh - 40px);
 }
-#sidebar {
-  background: var(--panel); min-width:74px; box-shadow:2px 0 27px #d1d1e8cc;
-  display:flex; flex-direction:column; align-items:center; padding:1em 0;
+.sidebar {
+  width:240px; background:#fff; border-right:1px solid var(--border); 
+  display:flex;flex-direction:column; padding:0;
 }
-#sidebar .logo {
-  margin: 12px 0 14px 0; width:50px; border-radius:12px; box-shadow:0 2px 12px #dee1fa34;
+.logo-area { text-align:center; padding:24px 16px; border-bottom: 1px solid var(--border);}
+.logo { width:48px; border-radius:12px;}
+.logo-area h2 { margin:12px 0 0 0; font-size:18px; font-weight:700; color:var(--accent);}
+nav ul { list-style:none; padding:16px 12px; margin:0;}
+.nav-item { 
+  padding:12px 16px; margin:4px 0; border-radius:10px; cursor:pointer; 
+  color:var(--text); font-weight:500; font-size:14px;
+  transition:all 0.2s; display:flex; align-items:center; gap:10px;
 }
-#sidebar .side-nav {margin-top:17px;}
-#sidebar .sidebtn {
-  background: none; border:none; cursor:pointer;
-  padding:13px 0; width:56px; border-radius:12px; margin-bottom:6px;
-  display:block; text-align:center; color:var(--accent);
-  transition:.13s; font-size: 23px;
+.nav-item:hover { background: var(--accent-light); color: var(--accent); }
+.nav-item.active { background: var(--accent); color:white; box-shadow:0 2px 8px rgba(91,124,247,0.3);}
+.user-info { margin-top:auto; padding:16px; border-top: 1px solid var(--border); font-size:13px; color:var(--text-light);}
+.logout { 
+  background:#fff; border:1.5px solid var(--accent); color:var(--accent);
+  padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;
+  width:calc(100% - 32px); margin: 12px 16px; font-size:14px; transition:all 0.2s;
 }
-#sidebar .sidebtn.active,#sidebar .sidebtn:hover {background:var(--accent3);}
-#sidebar .userInfo {
-  margin-top:auto; font-size:.97em; color:#6e7d9a;
-  border-top:1px solid #f3f3fa; width:100%; text-align:center; padding:.8em 0 .2em 0;
+.logout:hover { background:var(--accent); color:#fff; }
+.content-area {
+  flex:1; background:var(--color-bg); padding:32px; overflow-y:auto;
 }
-#main-panel {
-  background: var(--bg); flex:1; padding:34px 40px 24px 38px;
+.panel { display:none;}
+.panel.active { display:block;}
+
+.login-overlay {
+  position: fixed; top:0; left:0; width:100vw; height:100vh; 
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
+  z-index:1000;
 }
-h1 { font-size: 1.55em; color: var(--accent); margin-bottom:3px;}
-.panel-row {display: flex;gap:2.3em;}
-.panel-card {
-  background: var(--panel); border-radius:18px; box-shadow: 0 2px 14px #e0e3eb33;
-  margin-bottom:29px; padding:1.54em 2.2em 2em 2.1em; width:100%;
+#login-form {
+  padding:40px; background:#fff; border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3); min-width:360px;
 }
-.section-title {
-  display:flex; align-items:center; gap:1.2em; font-size:1.3em; font-weight:700;
-  margin-bottom:7px; color: var(--accent);
+#login-form h2 { font-weight:700; margin:0 0 24px 0; color:var(--accent); font-size:24px;}
+#user-select {
+  width:100%; font-size:15px; border-radius:8px; padding:12px 16px; 
+  margin-bottom:20px; border:1.5px solid var(--border); font-family:inherit;
 }
-.section-title img {width: 34px;}
-.filter-bar {display:flex;gap:11px;align-items:center;margin:2px 0 19px 0;}
-.filter-bar select, .filter-bar input {padding:.5em 1.2em;border-radius:14px;border:1px solid #e9e7f1;font-size:1em;background:#f7f7fc;}
-.addProductBtn {
-  background:linear-gradient(90deg,var(--accent)35%,var(--accent2)100%);
-  color:#fff;border:none; font-weight:700;border-radius:11px;
-  padding:.4em 1.4em;font-size:1em;margin-left:auto;cursor:pointer;
+#login-form button {
+  width:100%; background:var(--accent); border:none; border-radius:8px; 
+  color:#fff; font-weight:600; padding:12px; font-size:15px; cursor:pointer; 
+  transition:all 0.2s; font-family:inherit;
 }
-.product-list {margin:1.1em 0;}
-.product-card {
-  background: var(--accent3); border-radius:17px;
-  box-shadow:0 1.1px 9px #e0e7e541; display:flex; align-items:center; gap:1.25em;
-  padding:1em 1.6em; margin-bottom:13px;
+#login-form button:hover { background:#4c6de6; transform:translateY(-1px); box-shadow:0 4px 12px rgba(91,124,247,0.4);}
+
+.page-header {
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;
 }
-.prod-img {
-  width:60px; height:60px; object-fit:cover; border-radius:10px;background:#f9f9ff;
-  box-shadow:0 2px 12px #dee1fa1a;
+.page-header h2 { margin:0; font-size:28px; font-weight:700; color:var(--text);}
+.btn-primary {
+  background:var(--accent); color:#fff; border:none; padding:10px 20px;
+  border-radius:8px; font-weight:600; cursor:pointer; font-size:14px;
+  transition:all 0.2s; display:inline-flex; align-items:center; gap:6px;
+  font-family:inherit;
 }
-.prod-details { flex:1;}
-.prod-name { font-weight:700; font-size:1.12em;}
-.prod-cat { color: #7e97c7; background: #e9e9f6; padding:2px 8px;
-  border-radius:8px; display:inline-block; margin:.1em 0 5px 0;font-size:.95em;}
-.prod-desc { font-size: .96em; color: #585858;}
-.prod-meter-bar-wrap {
-  background: #E7E7F1; border-radius:8px; width:130px; height:10px; overflow:hidden; display:inline-block; margin-right:.5em;vertical-align:middle;
+.btn-primary:hover { background:#4c6de6; transform:translateY(-1px); box-shadow:0 4px 12px rgba(91,124,247,0.4);}
+.btn-secondary {
+  background:#fff; color:var(--text); border:1.5px solid var(--border); 
+  padding:8px 16px; border-radius:8px; font-weight:500; cursor:pointer; 
+  font-size:13px; transition:all 0.2s; font-family:inherit;
 }
-.prod-meter-bar {
-  height:100%;border-radius:8px;transition:.27s;
+.btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+.btn-success { background:var(--success); }
+.btn-success:hover { background:#059669; }
+.btn-warning { background:var(--warning); }
+.btn-warning:hover { background:#d97706; }
+.btn-danger { background:var(--danger); }
+.btn-danger:hover { background:#dc2626; }
+.btn-sm { padding:6px 12px; font-size:13px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+  gap: 20px; margin-bottom: 32px;
 }
-.prod-meter {display:flex;align-items:center;gap:1em;margin-top:6px;}
-.prod-meter .meter-percent { font-size: .92em; color: var(--accent); }
-.prod-meter .meter-label { color: #8a8e99; font-size: .95em;}
-.prod-actions {display:flex;gap:.5em;}
-.prod-actions button {
-  border:none; border-radius:9px; background:#fff; font-size:1.1em;
-  box-shadow:0 1px 8px #e9e9f92a;color:var(--accent);cursor:pointer; padding:.13em 1em;font-weight:600;
+.stat-card {
+  background:#fff; border-radius:12px; padding:24px; 
+  box-shadow:0 1px 3px rgba(0,0,0,0.05); border:1px solid var(--border);
+  transition:all 0.2s;
 }
-.prod-actions button:hover{background:var(--accent2);color:#fff;}
-#modal-bg {
-  position:fixed;top:0;left:0;width:100vw;height:100vh;background:#43557c53;z-index:50;display:none;align-items:center;justify-content:center;
+.stat-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); transform:translateY(-2px);}
+.stat-card h4 { margin:0 0 8px 0; font-size:13px; font-weight:600; 
+  color:var(--text-light); text-transform:uppercase; letter-spacing:0.5px;}
+.stat-card .stat { font-size:32px; font-weight:700; color:var(--accent); margin:0;}
+.stat-card .label { font-size:12px; color:var(--text-light); margin-top:4px;}
+
+.card {
+  background:#fff; border-radius:12px; padding:24px; 
+  box-shadow:0 1px 3px rgba(0,0,0,0.05); border:1px solid var(--border);
+  margin-bottom:24px;
 }
-#edit-modal {
-  background:var(--panel);min-width:330px;max-width:380px;padding:2em 2.3em;border-radius:22px;box-shadow:2px 10px 32px #adaedca9;
-  display: flex; flex-direction:column;align-items:center;
+.card-header {
+  display:flex; justify-content:space-between; align-items:center; 
+  margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);
 }
-#edit-modal label{font-size:1.04em;margin-top:7px;}
-#edit-modal input,#edit-modal textarea{
-  background:#f8f9fc;border-radius:12px;border:1px solid #dddee8;padding:.7em 1.2em;margin-top:4px;margin-bottom:10px;width:100%;
+.card-header h3 { margin:0; font-size:18px; font-weight:600; color:var(--text);}
+
+.form-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); 
+  gap:16px; margin-bottom:20px;
 }
-#edit-modal input[type="url"],#edit-modal input[type="text"],#edit-modal textarea{font-size:1.05em;}
-#edit-modal .modal-btn-row{width:100%;display:flex;gap:.6em;}
-#edit-modal button{border:none;border-radius:12px;background:var(--accent);color:#fff;padding:.47em 1.5em;font-weight:700;cursor:pointer;}
-#edit-modal button.cancel{background:#efd;}
-#edit-modal button.delete{background:var(--fullness-low);}
-#modal-bg.show{display:flex;}
-::-webkit-scrollbar {width:7px;height:7px;}
-::-webkit-scrollbar-thumb{background:#e1e2f6;border-radius:9px;}
+.form-group { display:flex; flex-direction:column; }
+.form-group label { font-size:13px; font-weight:600; color:var(--text); 
+  margin-bottom:6px; display:flex; align-items:center; gap:4px;}
+.form-group input, .form-group select {
+  padding:10px 12px; border:1.5px solid var(--border); border-radius:8px;
+  font-size:14px; font-family:inherit; transition:all 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(91,124,247,0.1);
+}
+
+.data-table {
+  width:100%; border-collapse:separate; border-spacing:0; font-size:14px;
+}
+.data-table thead th {
+  background:var(--accent-light); color:var(--accent); font-weight:600;
+  padding:12px 16px; text-align:left; font-size:13px;
+  border-bottom:2px solid var(--accent); position:sticky; top:0;
+}
+.data-table thead th:first-child { border-radius:8px 0 0 0;}
+.data-table thead th:last-child { border-radius:0 8px 0 0;}
+.data-table tbody td {
+  padding:14px 16px; border-bottom:1px solid var(--border);
+}
+.data-table tbody tr { transition:background 0.15s; }
+.data-table tbody tr:hover { background:var(--accent-light); }
+.data-table tbody tr:last-child td { border-bottom:none; }
+
+.badge {
+  display:inline-block; padding:4px 10px; border-radius:12px; 
+  font-size:12px; font-weight:600;
+}
+.badge-success { background:#d1fae5; color:#065f46; }
+.badge-warning { background:#fef3c7; color:#92400e; }
+.badge-danger { background:#fee2e2; color:#991b1b; }
+.badge-info { background:#dbeafe; color:#1e40af; }
+
+.modal {
+  position:fixed; top:0; left:0; width:100vw; height:100vh;
+  background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
+  display:none; align-items:center; justify-content:center; z-index:999;
+}
+.modal.active { display:flex; }
+.modal-content {
+  background:#fff; border-radius:16px; padding:32px; 
+  max-width:600px; width:90%; max-height:90vh; overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border);
+}
+.modal-header h3 { margin:0; font-size:20px; font-weight:700;}
+.modal-close {
+  background:none; border:none; font-size:24px; cursor:pointer; 
+  color:var(--text-light); width:32px; height:32px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+}
+.modal-close:hover { background:var(--accent-light); color:var(--accent); }
+
+.qty-control {
+  display:flex; align-items:center; gap:12px;
+}
+.qty-btn {
+  width:36px; height:36px; border:1.5px solid var(--border); 
+  background:#fff; border-radius:8px; cursor:pointer; font-size:18px;
+  font-weight:600; transition:all 0.2s; display:flex; align-items:center;
+  justify-content:center;
+}
+.qty-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
+.qty-display {
+  font-size:20px; font-weight:700; min-width:60px; text-align:center;
+  padding:8px 16px; background:var(--accent-light); border-radius:8px;
+  color:var(--accent);
+}
+
+.search-box {
+  position:relative; max-width:300px;
+}
+.search-box input {
+  width:100%; padding:10px 40px 10px 16px; border:1.5px solid var(--border);
+  border-radius:8px; font-size:14px; font-family:inherit;
+}
+.search-box::after {
+  content:'🔍'; position:absolute; right:12px; top:50%; 
+  transform:translateY(-50%); font-size:16px; pointer-events:none;
+}
+
+.empty-state {
+  text-align:center; padding:60px 20px; color:var(--text-light);
+}
+.empty-state-icon { font-size:64px; margin-bottom:16px; opacity:0.5;}
+.empty-state h3 { margin:0 0 8px 0; font-size:18px; color:var(--text);}
+.empty-state p { margin:0; font-size:14px;}
+
+.action-buttons {
+  display:flex; gap:8px; justify-content:flex-end;
+}
+
+.alert {
+  padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:14px;
+  display:flex; align-items:center; gap:12px;
+}
+.alert-success { background:#d1fae5; color:#065f46; border:1px solid #86efac;}
+.alert-warning { background:#fef3c7; color:#92400e; border:1px solid #fde68a;}
+.alert-danger { background:#fee2e2; color:#991b1b; border:1px solid #fecaca;}
+
+@media (max-width:920px){
+  .main-container{ flex-direction:column;}
+  .sidebar{ width:100%; }
+  nav ul { display:flex; overflow-x:auto; padding:8px;}
+  .nav-item { white-space:nowrap;}
+  .content-area { padding:16px;}
+  .stats-grid { grid-template-columns:1fr 1fr;}
+  .form-grid { grid-template-columns:1fr;}
+}
   </style>
 </head>
 <body>
-<div id="app-wrap">
-  <div id="sidebar">
-    <img src="https://img.icons8.com/glyph-neue/64/construction.png" class="logo" alt="Logo"/>
-    <div class="side-nav">
-      <button class="sidebtn active" data-panel="dashboard" title="Dashboard"><img src="https://img.icons8.com/ios-filled/25/5A51E8/combo-chart.png"/></button>
-      <button class="sidebtn" data-panel="oils" title="Huiles & Graisses"><img src="https://img.icons8.com/ios-filled/25/fea727/oil.png"/></button>
-      <button class="sidebtn" data-panel="chemicals" title="Chimie"><img src="https://img.icons8.com/ios-filled/25/8b95c9/chemical.png"/></button>
-      <button class="sidebtn" data-panel="stock" title="Matériel"><img src="https://img.icons8.com/ios-filled/25/90e867/toolbox.png"/></button>
-      <button class="sidebtn" data-panel="gasoil" title="Gasoil"><img src="https://img.icons8.com/ios-filled/25/fe8b71/fuel-tank.png"/></button>
-      <button class="sidebtn" data-panel="history" title="Historique"><img src="https://img.icons8.com/ios-filled/25/b6bac8/list.png"/></button>
-    </div>
-    <div class="userInfo" id="sidebar-user"></div>
-    <button id="logoutBtn" style="margin-bottom:12px;background:var(--accent3);color:var(--accent);border:none;padding:.4em 1.4em;border-radius:10px;">Déconnexion</button>
+  <div class="main-container" id="app">
+    <aside class="sidebar">
+      <div class="logo-area">
+        <img src="https://img.icons8.com/glyph-neue/64/construction.png" class="logo" alt="Logo"/>
+        <h2>EUROHINCA</h2>
+      </div>
+      <nav>
+        <ul>
+          <li class="nav-item active" data-tab="dashboard">📊 Dashboard</li>
+          <li class="nav-item" data-tab="oils">🛢️ Huiles</li>
+          <li class="nav-item" data-tab="chemicals">⚗️ Chimie</li>
+          <li class="nav-item" data-tab="stock">📦 Matériel</li>
+          <li class="nav-item" data-tab="sortie">📤 Sorties</li>
+          <li class="nav-item" data-tab="gasoil">⛽ Gasoil</li>
+          <li class="nav-item" data-tab="history">📜 Historique</li>
+        </ul>
+      </nav>
+      <div class="user-info" id="user-info"></div>
+      <button id="logout-btn" class="logout">Déconnexion</button>
+    </aside>
+    <main class="content-area">
+      <section id="dashboard-panel" class="panel active"></section>
+      <section id="oils-panel" class="panel"></section>
+      <section id="chemicals-panel" class="panel"></section>
+      <section id="stock-panel" class="panel"></section>
+      <section id="sortie-panel" class="panel"></section>
+      <section id="gasoil-panel" class="panel"></section>
+      <section id="history-panel" class="panel"></section>
+    </main>
   </div>
-  <div id="main-panel">
-    <div id="dashboard-panel" class="main-section"></div>
-    <div id="oils-panel" class="main-section" style="display:none"></div>
-    <div id="chemicals-panel" class="main-section" style="display:none"></div>
-    <div id="stock-panel" class="main-section" style="display:none"></div>
-    <div id="gasoil-panel" class="main-section" style="display:none"></div>
-    <div id="history-panel" class="main-section" style="display:none"></div>
+
+  <div id="login-overlay" class="login-overlay">
+    <form id="login-form">
+      <h2>Connexion</h2>
+      <select id="user-select" required>
+        <option value="" disabled selected>Choisissez votre nom...</option>
+        <option>Issam Abahmane</option>
+        <option>Mehdi Kridid</option>
+        <option>Yassine Faradi</option>
+        <option>Zakharia Essabir</option>
+        <option>Admin</option>
+      </select>
+      <button type="submit">Se connecter</button>
+    </form>
   </div>
-</div>
-<!-- Modal BG + Form for add/edit -->
-<div id="modal-bg">
-  <form id="edit-modal">
-    <h2 id="modal-title">Produit</h2>
-    <label>Nom<input type="text" id="prod-name" required></label>
-    <label>Catégorie<input type="text" id="prod-cat"></label>
-    <label>Quantité<input type="number" id="prod-qty" min="0" required></label>
-    <label>Qte max<input type="number" id="prod-maxqty" min="1"></label>
-    <label>Description<textarea id="prod-desc"></textarea></label>
-    <label>Image URL<input type="url" id="prod-img"></label>
-    <div class="modal-btn-row">
-      <button id="modal-save" type="submit">Enregistrer</button>
-      <button type="button" id="modal-cancel" class="cancel">Annuler</button>
-      <button type="button" id="modal-delete" class="delete" style="display:none">Suppr.</button>
+
+  <!-- Modals -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Modifier le stock</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modal-body"></div>
     </div>
-  </form>
-</div>
-<!-- Login Overlay -->
-<div id="login-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99;background:#ececf6e0;display:flex;align-items:center;justify-content:center;">
-  <form id="login-form" style="background:#fff;padding:2.4em 2.2em;border-radius:19px;box-shadow:0 2px 42px #adaedc34;min-width:330px;text-align:center;">
-    <h2 style="color:var(--accent)">Connectez-vous</h2>
-    <select id="user-select" required style="padding:.8em 1.3em;margin-bottom:1.2em;border-radius:11px;">
-      <option value="" disabled selected>Choisissez votre nom...</option>
-      <option>Issam Abahmane</option>
-      <option>Mehdi Kridid</option>
-      <option>Yassine Faradi</option>
-      <option>Zakharia Essabir</option>
-      <option>Admin</option>
-    </select>
-    <br>
-    <button type="submit" style="background:var(--accent2);color:#fff;padding:.8em 2.3em;border:none;border-radius:9px;font-weight:700;font-size:1.08em;">Connexion</button>
-  </form>
-</div>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-<script>
-// ==== FIREBASE INIT
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script>
+// Firebase Init
 const firebaseConfig = {
     apiKey: "AIzaSyChTXTsCZZxFGZyheznVWlQ_jO8LroXZbY",
     authDomain: "stock-fdfe7.firebaseapp.com",
@@ -186,378 +323,290 @@ const firebaseConfig = {
     messagingSenderId: "771102774872",
     appId: "1:771102774872:web:c9cb25329927ec71a09c2d"
 };
-firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// ==== USER LOGIN
+// User Management
 let currentUser = null;
 function getUser(){ return localStorage.getItem('eurohinca_user')||""; }
 function setUser(name){ localStorage.setItem('eurohinca_user', name); }
-function nowDate(){ return (new Date()).toISOString().substr(0,10);}
-document.getElementById("login-form").onsubmit = e=>{
-  e.preventDefault();
-  const user = document.getElementById('user-select').value;
-  if(user){ setUser(user); currentUser=user; document.getElementById('login-overlay').style.display='none'; initApp(); }
-};
-document.getElementById("logoutBtn").onclick=()=>{
-  localStorage.removeItem('eurohinca_user'); location.reload();
-};
-function checkLogin(){
-  if (!getUser()){ document.getElementById('login-overlay').style.display="flex"; }
-  else{ 
-    currentUser = getUser(); document.getElementById('login-overlay').style.display="none";
-    document.getElementById('sidebar-user').textContent = currentUser;
-    initApp();
-  }
-}
+function nowDate(){ return new Date().toISOString().substr(0,10);}
+function nowTime(){ return new Date().toTimeString().substr(0,8);}
+
+// Login
+const overlay = document.getElementById('login-overlay');
+const form = document.getElementById('login-form');
 checkLogin();
 
-// ==== NAVIGATION
-let currentPanel = "dashboard";
-document.querySelectorAll('.sidebtn').forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll('.sidebtn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.main-section').forEach(sec=>sec.style.display='none');
-    document.getElementById(btn.dataset.panel+'-panel').style.display='block';
-    currentPanel=btn.dataset.panel;
-    loadPanel(currentPanel);
-  }
-});
-
-// ==== MODAL + PRODUCT FORM
-function closeModal(){
-  document.getElementById('modal-bg').classList.remove('show');
-  document.getElementById("edit-modal").reset();
-}
-document.getElementById('modal-cancel').onclick=closeModal;
-
-// ==== DATA: Default Images for Categories
-const catImages = {
-  "Diesel":"https://img.icons8.com/fluency/64/gas-station.png",
-  "Gasoil":"https://img.icons8.com/3d-fluency/64/fuel-tank.png",
-  "Oil":"https://img.icons8.com/color/64/engine-oil.png",
-  "Chemicals":"https://img.icons8.com/color/64/test-tube.png",
-  "Parts":"https://img.icons8.com/sf-regular-filled/64/90e867/bolts.png",
-  "Stock":"https://img.icons8.com/sf-regular-filled/64/fea727/toolbox.png"
+form.onsubmit = e => {
+  e.preventDefault();
+  const user = document.getElementById('user-select').value;
+  if (!user) return;
+  setUser(user); currentUser = user;
+  location.reload();
 };
 
-// ==== PANEL HANDLERS ====
-function loadPanel(panel){
-  switch(panel){
-    case "dashboard":loadDashboard();break;
-    case "oils":loadProductsPanel("inventory_oil","Oils","Huiles & Graisses","Oil");break;
-    case "chemicals":loadProductsPanel("inventory_ben","Chemicals","Chimie","Chemicals");break;
-    case "stock":loadProductsPanel("inventory_stock","Parts","Stock Matériel","Parts");break;
-    case "gasoil":loadGasoilPanel();break;
-    case "history":loadHistoryPanel();break;
-  }
-}
-// === DASHBOARD PANEL ===
-function loadDashboard(){
-  const dst = document.getElementById("dashboard-panel");
-  dst.innerHTML = `<h1>Tableau de Bord</h1>
-  <div class="panel-row">
-    <div class="panel-card" id="dash-oil-card"><div style="font-size:1.2em;font-weight:650;color:var(--accent)">Huiles</div><div id="dash-oil"></div></div>
-    <div class="panel-card" id="dash-chem-card"><div style="font-size:1.2em;font-weight:650;color:var(--accent)">Chimie</div><div id="dash-chem"></div></div>
-    <div class="panel-card" id="dash-stock-card"><div style="font-size:1.2em;font-weight:650;color:var(--accent)">Pièces</div><div id="dash-stock"></div></div>
-    <div class="panel-card" id="dash-gasoil-card"><div style="font-size:1.2em;font-weight:650;color:var(--accent2)">Diesel (Gasoil)</div><div id="dash-gasoil"></div></div>
-  </div>`;
-  dashProductSummary("inventory_oil","dash-oil-card","dash-oil","Oils","engine-oil.png");
-  dashProductSummary("inventory_ben","dash-chem-card","dash-chem","Chemicals","test-tube.png");
-  dashProductSummary("inventory_stock","dash-stock-card","dash-stock","Parts","toolbox.png");
-  dashProductSummaryGasoil("dash-gasoil-card","dash-gasoil");
-}
-function dashProductSummary(coll,cardId,elId,label,img){
-  db.collection(coll).get().then(q=>{
-    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
-    document.getElementById(elId).innerHTML=
-      `<img src="https://img.icons8.com/color/48/${img}" style="vertical-align:middle;">
-       <span style="font-size:1.32em;font-weight:700;">${tot}</span> <span style="color:#99a">en stock</span>`;
-  });
-}
-function dashProductSummaryGasoil(cardId,elId){
-  db.collection("gasoil_total").doc("global").get().then(doc=>{
-    let qty = doc.exists?doc.data().qty||0:0;
-    let maxQty = doc.exists?doc.data().maxQty||40000:40000;
-    let percent = Math.floor((qty/maxQty)*100);
-    let barcolor = percent>66? "var(--fullness-ok)" : percent>33? "var(--fullness-mid)" : "var(--fullness-low)";
-    document.getElementById(elId).innerHTML = `
-      <img src="https://img.icons8.com/3d-fluency/64/fuel-tank.png" style="vertical-align:middle;">
-      <div class="prod-meter-bar-wrap" style="width:120px;display:inline-block;"><div class="prod-meter-bar" style="width:${percent}%;background:${barcolor}"></div></div>
-      <span class="meter-percent">${Math.round(percent)}%</span>
-      <br><span style="font-weight:700;font-size:1.16em;color:var(--accent2);margin-left:4px;">${qty} L / ${maxQty} L</span>
-    `;
-  });
+document.getElementById('logout-btn').onclick = ()=>{ 
+  localStorage.removeItem('eurohinca_user'); 
+  location.reload(); 
 }
 
-// === GENERIC PRODUCTS ("Oils"/"Chemicals"/"Stock/Parts") ===
-function loadProductsPanel(coll,cat,section,defcat){
-  const dst = document.getElementById(coll.replace('inventory_','')+'-panel');
-  dst.innerHTML = `<div class="panel-card"><div class="section-title">
-     <img src="${catImages[defcat]||catImages["Stock"]}">${section}
-    <button class="addProductBtn" id="add-prod-btn">+ Ajouter produit</button>
-  </div>
-  <div class="filter-bar">
-    <input type="search" id="searchbar" placeholder="Recherche nom ou catégorie...">
-  </div>
-  <div class="product-list" id="prod-list"></div>
-  </div>`;
-  // Filtering/search
-  let allProds = [];
-  function renderList(list){
-    const prodList = document.getElementById('prod-list');
-    prodList.innerHTML = (list.length)?
-      list.map(d=>productCardHTML(d,coll)).join('')
-      : `<div style="padding:1.6em;text-align:center;color:#888">Aucun produit!</div>`;
-    // Attach edit
-    prodList.querySelectorAll('.prod-actions .editBtn').forEach((btn,i)=>{
-      btn.onclick = ()=>showEditModal(list[i],coll);
-    });
-    prodList.querySelectorAll('.prod-actions .deleteBtn').forEach((btn,i)=>{
-      btn.onclick = ()=>deleteProduct(list[i],coll);
-    });
+function checkLogin() {
+  const u = getUser();
+  if (!u) { overlay.style.display = 'flex'; }
+  else { 
+    overlay.style.display = 'none'; 
+    document.getElementById('user-info').textContent = u;
+    currentUser = u; 
   }
-  db.collection(coll).orderBy("date","desc").onSnapshot(qs=>{
-    allProds = qs.docs.map(doc=>({...doc.data(),_id:doc.id}));
-    renderList(allProds);
-  });
-  document.getElementById('searchbar').oninput = e=>{
-    const val = e.target.value.toLowerCase();
-    renderList(allProds.filter(d=>
-      (d.type||d.des||d.nom||'').toLowerCase().includes(val) || (d.cat||'').toLowerCase().includes(val)
-    ));
+}
+
+// Navigation
+const navItems = document.querySelectorAll('.nav-item');
+const panels = document.querySelectorAll('.panel');
+navItems.forEach(item=>{
+  item.onclick = ()=>{
+    navItems.forEach(i=>i.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById(item.dataset.tab+'-panel').classList.add('active');
+    loadPanel(item.dataset.tab);
   };
-  // Add product
-  document.getElementById('add-prod-btn').onclick=()=>showEditModal(null,coll);
+});
+
+// Modal Functions
+function closeModal() {
+  document.getElementById('edit-modal').classList.remove('active');
 }
 
-// === PRODUCT CARD HTML
-function productCardHTML(prod,coll){
-  const name = prod.type||prod.nom||prod.des||"";
-  const cat = prod.cat||prod.category||"";
-  const desc = prod.desc||"";
-  const qty = Number(prod.qty)||0;
-  const maxQty = Number(prod.maxQty)|| (coll=="gasoil_total"?40000:1000);
-  const percent = Math.min(100, Math.round((qty/(maxQty||1))*100));
-  let barcolor = percent>66? "var(--fullness-ok)" : percent>33? "var(--fullness-mid)" : "var(--fullness-low)";
-  const img = prod.image||catImages[cat]||catImages["Stock"];
-  return `
-    <div class="product-card">
-      <img class="prod-img" src="${img}" alt="${name}">
-      <div class="prod-details">
-        <div class="prod-name">${name}</div>
-        <div class="prod-cat">${cat}</div>
-        <div class="prod-desc">${desc}</div>
-        <div class="prod-meter">
-          <span class="meter-label">Stock:</span>
-          <span>${qty} / ${maxQty}</span>
-          <div class="prod-meter-bar-wrap"><div class="prod-meter-bar" style="width:${percent}%;background:${barcolor}"></div></div>
-          <span class="meter-percent">${percent}%</span>
-        </div>
-      </div>
-      <div class="prod-actions">
-        <button class="editBtn">Editer</button>
-        <button class="deleteBtn">Suppr.</button>
+function openEditModal(collection, docId, currentQty, itemName) {
+  const modal = document.getElementById('edit-modal');
+  document.getElementById('modal-title').textContent = `Modifier: ${itemName}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>Quantité actuelle: <strong>${currentQty}</strong></label>
+    </div>
+    <div class="form-group">
+      <label>Nouvelle quantité</label>
+      <div class="qty-control">
+        <button type="button" class="qty-btn" onclick="changeQty(-10)">-10</button>
+        <button type="button" class="qty-btn" onclick="changeQty(-1)">-1</button>
+        <div class="qty-display" id="new-qty">${currentQty}</div>
+        <button type="button" class="qty-btn" onclick="changeQty(1)">+1</button>
+        <button type="button" class="qty-btn" onclick="changeQty(10)">+10</button>
       </div>
     </div>
+    <div class="form-group">
+      <label>Ou entrer directement:</label>
+      <input type="number" id="direct-qty" value="${currentQty}" min="0" 
+        onchange="document.getElementById('new-qty').textContent=this.value">
+    </div>
+    <div class="action-buttons" style="margin-top:24px;">
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveQty('${collection}','${docId}')">
+        Enregistrer
+      </button>
+    </div>
   `;
-}
-// === EDIT PRODUCT MODAL ===
-function showEditModal(prod,coll){
-  document.getElementById("modal-bg").classList.add("show");
-  let form = document.getElementById("edit-modal");
-  form.reset();
-  document.getElementById("modal-title").textContent = prod ? "Modifier produit":"Ajouter produit";
-  document.getElementById("modal-delete").style.display = prod?"inline-block":"none";
-  // Fill values
-  document.getElementById("prod-name").value = prod?(prod.type||prod.nom||prod.des):"";
-  document.getElementById("prod-cat").value = prod?(prod.cat||prod.category):"";
-  document.getElementById("prod-qty").value = prod?prod.qty:0;
-  document.getElementById("prod-maxqty").value = prod?prod.maxQty||1000:"";
-  document.getElementById("prod-desc").value = prod?prod.desc||"":"";
-  document.getElementById("prod-img").value = prod?prod.image||"":"";
-  // Save
-  form.onsubmit = async function(evt){
-    evt.preventDefault();
-    let data = {
-      type: document.getElementById("prod-name").value,
-      cat: document.getElementById("prod-cat").value,
-      qty: Number(document.getElementById("prod-qty").value),
-      maxQty: Number(document.getElementById("prod-maxqty").value),
-      desc: document.getElementById("prod-desc").value,
-      image: document.getElementById("prod-img").value,
-      date: nowDate(),
-      user: getUser()
-    };
-    if(prod && prod._id){
-      await db.collection(coll).doc(prod._id).set({...prod,...data});
-      await db.collection("log_activity").add({act:"Maj produit",...data,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
-    }else{
-      await db.collection(coll).add(data);
-      await db.collection("log_activity").add({act:"Ajout produit",...data,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
-    }
-    closeModal();
-  };
-  // Delete
-  document.getElementById("modal-delete").onclick = async function(){
-    if(prod && prod._id){
-      await db.collection(coll).doc(prod._id).delete();
-      await db.collection("log_activity").add({act:"Suppression produit",...prod,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
-      closeModal();
-    }
-  };
+  modal.classList.add('active');
 }
 
-// === DELETE PRODUCT (Quick)
-async function deleteProduct(prod,coll){
-  if(confirm("Supprimer ce produit?")){
-    await db.collection(coll).doc(prod._id).delete();
-    await db.collection("log_activity").add({act:"Suppression produit",...prod,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+function changeQty(delta) {
+  const display = document.getElementById('new-qty');
+  const input = document.getElementById('direct-qty');
+  let current = parseInt(display.textContent);
+  let newVal = Math.max(0, current + delta);
+  display.textContent = newVal;
+  input.value = newVal;
+}
+
+async function saveQty(collection, docId) {
+  const newQty = parseInt(document.getElementById('direct-qty').value);
+  await db.collection(collection).doc(docId).update({ qty: newQty });
+  await db.collection("log_activity").add({
+    act: "Modification quantité",
+    collection: collection,
+    docId: docId,
+    newQty: newQty,
+    user: getUser(),
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  closeModal();
+  showAlert('Quantité mise à jour avec succès!', 'success');
+}
+
+function showAlert(message, type = 'success') {
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type}`;
+  alertDiv.textContent = message;
+  const activePanel = document.querySelector('.panel.active');
+  activePanel.insertBefore(alertDiv, activePanel.firstChild);
+  setTimeout(() => alertDiv.remove(), 3000);
+}
+
+// Panel Loading
+let panelLoaded = {};
+async function loadPanel(name) {
+  if(panelLoaded[name]) return;
+  switch(name){
+    case "dashboard": await loadDashboard(); break;
+    case "oils": await loadOils(); break;
+    case "chemicals": await loadChemicals(); break;
+    case "stock": await loadStock(); break;
+    case "sortie": await loadSortie(); break;
+    case "gasoil": await loadGasoil(); break;
+    case "history": await loadHistory(); break;
   }
+  panelLoaded[name]=true;
 }
 
-// === GASOIL PANEL (Special: fullness bar, edit total, etc) ===
-function loadGasoilPanel(){
-  const dst = document.getElementById("gasoil-panel");
+// Dashboard
+async function loadDashboard(){
+  const dst = document.getElementById('dashboard-panel');
   dst.innerHTML = `
-    <div class="panel-card">
-      <div class="section-title">
-        <img src="https://img.icons8.com/3d-fluency/64/fuel-tank.png">
-        Gasoil (Diesel) Total & Consommation
-        <button class="addProductBtn" id="add-gas-btn">Editer Total</button>
-      </div>
-      <div id="gas-detail"></div>
+    <div class="page-header">
+      <h2>Tableau de Bord</h2>
     </div>
-    <div class="panel-card">
-      <div class="section-title"><img src="https://img.icons8.com/fluency/48/gas-station.png">Consommations</div>
-      <form id="gasoil-form" style="margin-bottom:18px;">
-        <div style="display:flex;gap:.9em;">
-          <input type="text" id="gasoil-mac" placeholder="Machine/Référence..." required>
-          <input type="text" id="gasoil-sh" placeholder="Service Heure">
-          <input type="number" id="gasoil-conso" placeholder="Conso (L)" min="0" required>
-          <input type="date" id="gasoil-date" value="${nowDate()}">
-          <button type="submit">Ajouter</button>
-        </div>
-      </form>
-      <div class="product-list" id="gasoil-prodlist"></div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h4>Huiles & Graisses</h4>
+        <div class="stat" id="stat-oil">0</div>
+        <div class="label">Total unités</div>
+      </div>
+      <div class="stat-card">
+        <h4>Bentonite & Chimie</h4>
+        <div class="stat" id="stat-chem">0</div>
+        <div class="label">Total unités</div>
+      </div>
+      <div class="stat-card">
+        <h4>Stock Matériel</h4>
+        <div class="stat" id="stat-stock">0</div>
+        <div class="label">Total pièces</div>
+      </div>
+      <div class="stat-card">
+        <h4>Gasoil</h4>
+        <div class="stat" id="stat-diesel">0</div>
+        <div class="label">Litres disponibles</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Activité récente</h3>
+      </div>
+      <div id="recent-activity"></div>
     </div>
   `;
-  // Get gasoil total
-  function renderGasoilDetail(doc){
-    let qty = doc.exists ? doc.data().qty||0 : 0;
-    let maxQty = doc.exists ? doc.data().maxQty||40000 : 40000;
-    let percent = Math.min(100, Math.round((qty/(maxQty||1))*100));
-    let barcolor = percent>66? "var(--fullness-ok)" : percent>33? "var(--fullness-mid)" : "var(--fullness-low)";
-    document.getElementById("gas-detail").innerHTML = `
-      <img src="https://img.icons8.com/3d-fluency/64/fuel-tank.png" style="border-radius:16px;background:white;margin-right:10px;vertical-align:middle;">
-      <div style="display:inline-block;vertical-align:middle;">
-      <div style="font-size:1.13em;font-weight:700;color:var(--accent2);margin-bottom:4px;">${qty} L / ${maxQty} L</div>
-      <div style="display:flex;align-items:center;gap:.8em;">
-        <div class="prod-meter-bar-wrap" style="width:160px;"><div class="prod-meter-bar" style="width:${percent}%;background:${barcolor};"></div></div>
-        <span class="meter-percent">${percent}%</span>
+  
+  // Load stats
+  db.collection("inventory_oil").get().then(q=>{
+    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
+    document.getElementById("stat-oil").textContent = tot;
+  });
+  db.collection("inventory_ben").get().then(q=>{
+    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
+    document.getElementById("stat-chem").textContent = tot;
+  });
+  db.collection("inventory_stock").get().then(q=>{
+    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
+    document.getElementById("stat-stock").textContent = tot;
+  });
+  db.collection("gasoil_total").doc("global").get().then(doc=>{
+    document.getElementById("stat-diesel").textContent = 
+      doc.exists ? (doc.data().qty||0) : 0;
+  });
+
+  // Recent activity
+  db.collection("log_activity").orderBy("timestamp","desc").limit(5).get().then(qs=>{
+    const html = qs.docs.map(doc=>{
+      const d = doc.data();
+      return `<div style="padding:12px 0; border-bottom:1px solid var(--border);">
+        <div style="font-weight:600; color:var(--text);">${d.act||'Action'}</div>
+        <div style="font-size:13px; color:var(--text-light); margin-top:4px;">
+          ${d.user||''} • ${d.timestamp ? new Date(d.timestamp.seconds*1000).toLocaleString() : ''}
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('recent-activity').innerHTML = html || 
+      '<div class="empty-state"><p>Aucune activité récente</p></div>';
+  });
+}
+
+// Oils Panel
+async function loadOils(){
+  const dst = document.getElementById('oils-panel');
+  dst.innerHTML = `
+    <div class="page-header">
+      <h2>Huiles & Graisses</h2>
+      <button class="btn-primary" onclick="showAddOilForm()">
+        ➕ Ajouter un produit
+      </button>
+    </div>
+    <div class="card" id="add-oil-card" style="display:none;">
+      <div class="card-header">
+        <h3>Nouveau produit</h3>
       </div>
-      </div>
-      <div style="font-size:1em;color:#9a9bb0;margin-top:9px;">Dernière mise à jour : ${doc.exists && doc.data().date || "--"}</div>
-    `;
-  }
-  db.collection("gasoil_total").doc("global").onSnapshot(renderGasoilDetail);
-  // Edit gasoil total modal
-  document.getElementById("add-gas-btn").onclick = async ()=>{
-    let doc = await db.collection("gasoil_total").doc("global").get();
-    document.getElementById("modal-bg").classList.add("show");
-    document.getElementById("modal-title").textContent = "Editer Total Gasoil";
-    document.getElementById("prod-name").value = "Diesel Fuel";
-    document.getElementById("prod-cat").value = "Diesel";
-    document.getElementById("prod-qty").value = doc.exists?doc.data().qty||0:0;
-    document.getElementById("prod-maxqty").value = doc.exists?doc.data().maxQty||40000:40000;
-    document.getElementById("prod-desc").value = doc.exists?doc.data().desc||"":"";
-    document.getElementById("prod-img").value = doc.exists?doc.data().image||catImages["Gasoil"]:"";
-    document.getElementById("modal-delete").style.display="none";
-    // Save
-    document.getElementById("edit-modal").onsubmit = async function(evt){
-      evt.preventDefault();
-      let data = {
-        qty: Number(document.getElementById("prod-qty").value),
-        maxQty: Number(document.getElementById("prod-maxqty").value)||40000,
-        desc: document.getElementById("prod-desc").value,
-        image: document.getElementById("prod-img").value,
-        date: nowDate(),
-        user: getUser()
-      };
-      await db.collection("gasoil_total").doc("global").set(data);
-      await db.collection("log_activity").add({act:"Maj Gasoil total",...data,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
-      closeModal();
-    };
-  };
-  // Consumption list
-  db.collection("log_gasoil").orderBy("date","desc").limit(30).onSnapshot(qs=>{
-    const list = qs.docs.map(doc=>({...doc.data(),_id:doc.id}));
-    document.getElementById('gasoil-prodlist').innerHTML = list.length ?
-      list.map(d=>`
-        <div class="product-card">
-          <img src="https://img.icons8.com/3d-fluency/64/fuel-tank.png" class="prod-img">
-          <div class="prod-details">
-            <div class="prod-name">${d.mac}</div>
-            <div class="prod-cat">SH: ${d.sh}</div>
-            <div class="prod-desc">Conso: <b>${d.conso}L</b> ${d.date||""}</div>
-            <div style="font-size:.94em;color:#999;">Utilisateur: ${d.user||""}</div>
+      <form id="oil-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Type de produit</label>
+            <input type="text" id="oil-type" required placeholder="Ex: TOTAL AZOLLA ZS 68">
+          </div>
+          <div class="form-group">
+            <label>Quantité initiale</label>
+            <input type="number" id="oil-qty" required min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Unité</label>
+            <select id="oil-unit">
+              <option>L</option>
+              <option>kg</option>
+              <option>unité</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Seuil d'alerte</label>
+            <input type="number" id="oil-alert" min="0" value="10">
           </div>
         </div>
-      `).join("") :
-      `<div style="padding:1.2em;text-align:center;color:#888">Aucun log de consommation</div>`;
-  });
-  // Add consumption
-  document.getElementById("gasoil-form").onsubmit=async function(ev){
-    ev.preventDefault();
-    let data = {
-      mac: document.getElementById("gasoil-mac").value,
-      sh: document.getElementById("gasoil-sh").value,
-      conso: Number(document.getElementById("gasoil-conso").value),
-      date: document.getElementById("gasoil-date").value,
-      user: getUser()
-    };
-    let doc = await db.collection("gasoil_total").doc("global").get();
-    let newQty = doc.exists ? ((doc.data().qty||0)-data.conso) : 0;
-    if(newQty<0)newQty=0;
-    await db.collection("gasoil_total").doc("global").set({...doc.data(),qty:newQty});
-    await db.collection("log_gasoil").add(data);
-    await db.collection("log_activity").add({act:"Conso Gasoil",...data,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
-    document.getElementById("gasoil-form").reset();
-    document.getElementById("gasoil-date").value=nowDate();
-  };
-}
+        <div class="action-buttons">
+          <button type="button" class="btn-secondary" onclick="hideAddOilForm()">Annuler</button>
+          <button type="submit" class="btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Inventaire</h3>
+        <div class="search-box">
+          <input type="text" id="oil-search" placeholder="Rechercher...">
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Quantité</th>
+            <th>Unité</th>
+            <th>Alerte</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="oil-tbody"></tbody>
+      </table>
+    </div>
+  `;
 
-// === ACTIVITY PANEL ===
-function loadHistoryPanel(){
-  const dst = document.getElementById("history-panel");
-  dst.innerHTML = `<div class="panel-card"><div class="section-title"><img src="https://img.icons8.com/ios-filled/32/b6bac8/list.png">Historique des actions</div>
-  <div style="overflow-x:auto;">
-    <table style="width:100%;border-collapse:collapse;margin-top:16px;">
-      <thead><tr style="background:#f3f6fa;color:var(--accent);font-weight:600;">
-        <th>Date/Heure</th><th>Action</th><th>User</th><th>Détail</th>
-      </tr></thead>
-      <tbody id="activity-tbody"></tbody>
-    </table>
-  </div>
-  </div>`;
-  db.collection("log_activity").orderBy("timestamp","desc").limit(50).onSnapshot(qs=>{
-    document.getElementById("activity-tbody").innerHTML = qs.docs.map(doc=>{
-      const d = doc.data();
-      return `<tr style="background:#f8f9fb;">
-        <td>${d.timestamp?(d.timestamp.toDate?d.timestamp.toDate().toLocaleString():d.timestamp):""}</td>
-        <td>${d.act||""}</td>
-        <td>${d.user||""}</td>
-        <td>${Object.entries(d).filter(([k])=>!['act','user','timestamp'].includes(k)).map(([k,v])=>`${k}: ${v}`).join(' | ')}</td>
-      </tr>`;
-    }).join('');
-  });
-}
+  const form = document.getElementById('oil-form');
+  const tbody = document.getElementById('oil-tbody');
 
-// INIT FIRST PANEL
-function initApp(){
-  loadPanel("dashboard");
-}
-
-</script>
-</body>
-</html>
+  // Load inventory
+  db.collection("inventory_oil").onSnapshot(qs=>{
+    if(qs.empty) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>Aucun produit</p></td></tr>';
+      return;
+    }
+    
+    // Group by type and sum quantities
+    const grouped = {};
+    qs.docs
