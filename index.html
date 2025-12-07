@@ -3,311 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EUROHINCA - Gestion Stock Cloud</title>
+    <title>EUROHINCA | Gestion Stock Cloud</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- STYLE GLOBAL IDENTIQUE --- */
-        body { font-family: 'Segoe UI', 'Roboto', sans-serif; margin: 0; padding: 0; background-color: #eef2f6; color: #333; display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
-        .sidebar { width: 270px; background: #2c3e50; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 100; }
-        .logo-container { padding: 20px; background: white; text-align: center; border-bottom: 1px solid #ddd; }
-        .logo-container img { max-width: 140px; }
-        .user-selector { padding: 15px; background: #34495e; border-bottom: 1px solid #46627f; }
-        .user-selector label { font-size: 11px; text-transform: uppercase; color: #bdc3c7; margin-bottom: 5px; display: block; }
-        .user-selector select { width: 100%; padding: 8px; border-radius: 4px; border: none; background: #ecf0f1; font-weight: 600; color: #2c3e50; font-size: 12px; }
-        .menu { flex: 1; overflow-y: auto; padding-top: 10px; }
-        .menu-item { padding: 15px 20px; display: flex; align-items: center; cursor: pointer; color: #ecf0f1; transition: 0.2s; border-left: 4px solid transparent; font-size: 14px; }
-        .menu-item:hover { background: #3e5871; padding-left: 25px; }
-        .menu-item.active { background: #34495e; border-left-color: #3498db; color: white; font-weight: 700; }
-        .menu-item i { width: 25px; margin-right: 10px; text-align: center; font-size: 16px; }
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .header h1 { margin: 0; font-size: 20px; color: #2c3e50; font-weight: 700; text-transform: uppercase; }
-        .badge-user { background:#e8f4fd; color:#2c3e50; padding:8px 15px; font-size:13px; border-radius: 4px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
-        .card h3 { margin: 0; color: #2c3e50; font-size: 16px; font-weight: 700; text-transform: uppercase; }
-        .header-buttons { display: flex; gap: 10px; }
-        .form-row { display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap; }
-        .form-group { flex: 1; min-width: 200px; }
-        .form-group label { display: block; font-size: 11px; font-weight: 700; color: #7f8c8d; margin-bottom: 5px; text-transform: uppercase; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #dfe6e9; border-radius: 5px; font-size: 13px; background: #fdfdfd; box-sizing: border-box; }
-        .mag-select { background-color: #e8f4fd !important; color: #2980b9; font-weight: bold; border: 1px solid #aed6f1 !important; }
-        .input-group { display: flex; gap: 5px; }
-        .btn-add-item { background: #3498db; color: white; border: none; border-radius: 5px; width: 40px; cursor: pointer; font-size: 14px; }
-        .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; color: white; }
-        .btn-save { background: #27ae60; } .btn-new { background: #f39c12; } .btn-delete { background: #c0392b; }
-        .btn-header { padding: 8px 15px; font-size: 13px; border-radius: 4px; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .btn-excel { background: #217346; } .filter-btn { background: #3498db; }
-        .table-container { overflow-x: auto; border: 1px solid #eee; border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 800px; }
-        thead { background: #34495e; color: white; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f1f1f1; }
-        th.center, td.center { text-align: center; }
-        td.action-col { white-space: nowrap; width: 80px; text-align: center; }
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: white; display: inline-block; min-width: 60px; text-align: center; }
-        .badge-ok { background: #27ae60; } .badge-low { background: #e74c3c; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        .filter-box { background: #f0f7ff; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; border: 1px solid #cfe2f3; }
-        .alert-box { background: #fee2e2; color: #c0392b; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #c0392b; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-        .container-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .container-col { display: flex; flex-direction: column; gap: 20px; }
-        .cnt-card { background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .cnt-header { background: #4db6ac; color: white; padding: 8px 15px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .cnt-body { padding: 20px; background: #fdfdfd; }
-        .cnt-icon { font-size: 50px; margin-bottom: 10px; }
-        .c-blue { color: #3498db; } .c-red { color: #e74c3c; }
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 15px; padding: 5px; transition: 0.2s; }
-        .btn-edit { color: #3498db; } .btn-trash { color: #e74c3c; } .btn-update-stock { color: #2980b9; margin-left: 10px; cursor: pointer; border: none; background: none;}
-        .section { display: none; }
-        .section.active { display: block; }
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f3f4f6;
+            --sidebar: #1e293b;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg); display: flex; height: 100vh; overflow: hidden; color: #1f2937; }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s;
+        }
+        .login-box {
+            background: white; padding: 40px; border-radius: 12px; width: 350px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); text-align: center;
+        }
+        .login-box h2 { color: var(--primary); margin-bottom: 20px; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; transition: 0.2s; }
+        .btn-login:hover { background: #1d4ed8; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: 260px; background: var(--sidebar); color: white; display: flex; flex-direction: column; transition: 0.3s; }
+        .logo-area { padding: 25px; font-size: 22px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); letter-spacing: 1px; color: #38bdf8; display:flex; align-items:center; gap:10px; }
+        .menu { padding: 20px 10px; flex: 1; }
+        .menu-item {
+            padding: 14px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; color: #94a3b8; font-weight: 500; transition: all 0.2s ease;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(5px); }
+        .menu-item.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .menu-item i { width: 25px; font-size: 18px; margin-right: 10px; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { font-size: 24px; font-weight: 700; color: #111827; margin: 0; }
+        .user-badge { background: white; padding: 8px 16px; border-radius: 30px; box-shadow: var(--shadow); font-weight: 600; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
+        .user-dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; }
+
+        /* --- CARDS & FORMS --- */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: var(--shadow); border: 1px solid #e5e7eb; animation: fadeIn 0.4s ease-out; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f3f4f6; }
+        .card-title { font-size: 18px; font-weight: 700; color: #374151; display: flex; align-items: center; gap: 10px; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: #f8fafc; transition: 0.2s; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        .input-group { display: flex; gap: 8px; }
+        .btn-plus { background: var(--primary); color: white; border: none; border-radius: 8px; width: 45px; cursor: pointer; transition: 0.2s; }
+        .btn-plus:hover { background: #1d4ed8; }
+
+        /* --- BUTTONS --- */
+        .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: 0.2s; }
+        .btn-save { background: var(--success); color: white; } .btn-save:hover { background: #059669; }
+        .btn-reset { background: var(--secondary); color: white; } .btn-reset:hover { background: #475569; }
+        .btn-excel { background: #217346; color: white; font-size: 12px; padding: 8px 12px; border-radius: 6px; }
+
+        /* --- TABLES --- */
+        .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; padding: 12px 15px; text-align: left; font-size: 12px; text-transform: uppercase; }
+        td { padding: 14px 15px; border-top: 1px solid #e2e8f0; color: #334155; font-size: 13px; }
+        tr:hover td { background: #f1f5f9; }
+
+        /* --- STATS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); text-align: center; border-bottom: 4px solid transparent; }
+        .stat-val { font-size: 28px; font-weight: 800; margin: 10px 0 5px 0; }
+        .stat-label { font-size: 13px; color: var(--secondary); font-weight: 500; }
+
+        /* --- UTILS --- */
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="logo-container">
-        <h2 style="color:#2c3e50; margin:0;">EUROHINCA</h2>
-    </div>
-    
-    <div class="user-selector">
-        <label>Magasinier en service :</label>
-        <select id="current_user">
+<div id="login-screen">
+    <div class="login-box">
+        <i class="fas fa-hard-hat" style="font-size: 40px; color: #2563eb; margin-bottom:10px;"></i>
+        <h2>EUROHINCA ACCESS</h2>
+        <select id="login-user" class="login-input">
+            <option value="" disabled selected>Choisir Utilisateur</option>
             <option value="Issam Abahmane">Issam Abahmane</option>
             <option value="Mehdi Kridid">Mehdi Kridid</option>
             <option value="Yassine Faradi">Yassine Faradi</option>
             <option value="Zakaria Essabir">Zakaria Essabir</option>
-            <option value="Admin">Admin</option>
+            <option value="Admin">Administrateur</option>
         </select>
+        <input type="password" id="login-pass" class="login-input" placeholder="Code d'accès (Optionnel)">
+        <button class="btn-login" id="btn-login-submit">ENTRER</button>
     </div>
+</div>
 
+<div class="sidebar">
+    <div class="logo-area">
+        <i class="fas fa-shield-alt"></i> EUROHINCA
+    </div>
     <div class="menu">
-        <div class="menu-item active" onclick="window.app.nav('dashboard', this)"><i class="fas fa-chart-pie"></i> Tableau de Bord</div>
-        <div class="menu-item" onclick="window.app.nav('activity', this)"><i class="fas fa-users-cog"></i> Activité & Suivi</div>
-        <div class="menu-item" onclick="window.app.nav('huiles', this)"><i class="fas fa-oil-can"></i> Huiles & Graisses</div>
-        <div class="menu-item" onclick="window.app.nav('bentonite', this)"><i class="fas fa-flask"></i> Bentonite & Chimie</div>
-        <div class="menu-item" onclick="window.app.nav('stock', this)"><i class="fas fa-cubes"></i> Stock Matériel</div>
-        <div class="menu-item" onclick="window.app.nav('sortie', this)"><i class="fas fa-dolly-flatbed"></i> Matériel Sortie</div>
-        <div class="menu-item" onclick="window.app.nav('gasoil', this)"><i class="fas fa-gas-pump"></i> Gestion Gasoil</div>
+        <div class="menu-item active" data-target="dashboard"><i class="fas fa-chart-pie"></i> Tableau de Bord</div>
+        <div class="menu-item" data-target="huiles"><i class="fas fa-oil-can"></i> Huiles & Graisses</div>
+        <div class="menu-item" data-target="bentonite"><i class="fas fa-flask"></i> Bentonite & Chimie</div>
+        <div class="menu-item" data-target="stock"><i class="fas fa-cubes"></i> Stock Matériel</div>
+        <div class="menu-item" data-target="sortie"><i class="fas fa-dolly-flatbed"></i> Matériel Sortie</div>
+        <div class="menu-item" data-target="gasoil"><i class="fas fa-gas-pump"></i> Gestion Gasoil</div>
+        <div class="menu-item" data-target="activity"><i class="fas fa-history"></i> Historique</div>
+    </div>
+    <div style="padding:20px; font-size:11px; color:rgba(255,255,255,0.3); text-align:center;">
+        v2.0 Firebase Cloud
     </div>
 </div>
 
 <div class="main-content">
     <div class="header">
         <h1 id="page-title">Tableau de Bord</h1>
-        <div class="badge-user">
-            <i class="fas fa-user-circle"></i> <span id="header_user">Issam Abahmane</span>
+        <div class="user-badge">
+            <div class="user-dot"></div>
+            <span id="current-user-display">Non connecté</span>
         </div>
     </div>
 
-    <div id="dashboard" class="section active">
+    <div id="dashboard" class="section">
         <div id="dash-alerts"></div>
-        <div class="card">
-            <div class="card-header"><h3>📊 Vue Globale</h3></div>
-            <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                <div style="flex:1; background:#3498db; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Huiles</div><h2 id="st-oil" style="margin:5px 0;">0</h2></div>
-                <div style="flex:1; background:#e67e22; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Bentonite</div><h2 id="st-ben" style="margin:5px 0;">0</h2></div>
-                <div style="flex:1; background:#27ae60; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Matériel</div><h2 id="st-mat" style="margin:5px 0;">0</h2></div>
-                <div style="flex:1; background:#c0392b; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Gasoil (L)</div><h2 id="st-gas" style="margin:5px 0;">0</h2></div>
+        <div class="stats-grid">
+            <div class="stat-card" style="border-color: #2563eb;">
+                <i class="fas fa-oil-can" style="color:#2563eb; font-size:20px;"></i>
+                <div class="stat-val" id="st-oil" style="color:#2563eb;">0</div>
+                <div class="stat-label">Huiles (Réf)</div>
             </div>
+            <div class="stat-card" style="border-color: #f59e0b;">
+                <i class="fas fa-flask" style="color:#f59e0b; font-size:20px;"></i>
+                <div class="stat-val" id="st-ben" style="color:#f59e0b;">0</div>
+                <div class="stat-label">Chimie (Réf)</div>
+            </div>
+            <div class="stat-card" style="border-color: #10b981;">
+                <i class="fas fa-cubes" style="color:#10b981; font-size:20px;"></i>
+                <div class="stat-val" id="st-mat" style="color:#10b981;">0</div>
+                <div class="stat-label">Matériel</div>
+            </div>
+            <div class="stat-card" style="border-color: #ef4444;">
+                <i class="fas fa-gas-pump" style="color:#ef4444; font-size:20px;"></i>
+                <div class="stat-val" id="st-gas" style="color:#ef4444;">0</div>
+                <div class="stat-label">Gasoil (L)</div>
+            </div>
+        </div>
+        
+        <div class="card" style="border-left: 4px solid #8b5cf6;">
+            <div class="card-title"><i class="fas fa-database" style="color:#8b5cf6;"></i> Configuration Initiale</div>
+            <p style="color:#666; margin: 10px 0;">Cliquez ci-dessous pour charger les listes par défaut (Chimie, Machines, etc.) dans la base de données. À ne faire qu'une seule fois.</p>
+            <button class="btn" style="background:#8b5cf6; color:white;" id="btn-seed">📥 Charger les Listes par défaut</button>
         </div>
     </div>
 
-    <div id="activity" class="section">
+    <div id="huiles" class="section hidden">
         <div class="card">
-            <div class="card-header">
-                <h3>📜 Journal d'Activité</h3>
-                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-act', 'Activite')"><i class="fas fa-file-excel"></i> Excel</button>
-            </div>
-            <div class="table-container">
-                <table id="table-act">
-                    <thead><tr><th>Date</th><th>Heure</th><th>Magasinier</th><th>Action</th><th>Détails</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="huiles" class="section">
-        <div class="card">
-            <h3>🛢️ Gestion Huiles & Graisses</h3>
+            <div class="card-title">Gestion Huiles</div>
             <form id="form-oil">
-                <input type="hidden" id="oil_id"> <div class="form-row">
+                <input type="hidden" id="oil_id">
+                <div class="form-grid">
                     <div class="form-group"><label>Produit</label>
                         <div class="input-group">
-                            <select id="oil_name" style="flex:1;"></select>
-                            <button type="button" class="btn-add-item" onclick="window.app.addNewProduct('oil')"><i class="fas fa-plus"></i></button>
+                            <select id="oil_name"></select>
+                            <button type="button" class="btn-plus" title="Ajouter Nouveau" onclick="window.app.addDynamicItem('list_oils', 'oil_name')"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     <div class="form-group"><label>Quantité</label><input type="number" id="oil_qty"></div>
-                    <div class="form-group"><label>Unité</label><input type="text" id="oil_unit"></div>
-                </div>
-                <div class="form-row">
+                    <div class="form-group"><label>Unité</label><input type="text" id="oil_unit" placeholder="Fût/Litre"></div>
                     <div class="form-group"><label>Alerte Min</label><input type="number" id="oil_alert" value="2"></div>
-                    <div class="form-group"><label>Date MAJ</label><input type="date" id="oil_date"></div>
-                    <div class="form-group"><label>Magasinier</label><select id="oil_user" class="mag-select"></select></div>
                 </div>
-                <div class="actions">
-                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-oil')"><i class="fas fa-plus"></i> Nouveau</button>
-                    <button type="button" class="btn btn-save" onclick="window.app.saveOil()"><i class="fas fa-save"></i> Enregistrer</button>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-oil')">Reset</button>
+                    <button type="button" class="btn btn-save" onclick="window.app.saveOil()">Enregistrer</button>
                 </div>
             </form>
         </div>
         <div class="card">
-            <div class="card-header"><h3>Stock Huiles</h3>
-                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-oil', 'Huiles')"><i class="fas fa-file-excel"></i> Excel</button>
+            <div class="card-header">
+                <div class="card-title">Inventaire</div>
+                <button class="btn btn-excel" onclick="window.app.exportTable('table-oil', 'Huiles')"><i class="fas fa-file-excel"></i> Excel</button>
             </div>
-            <div class="table-container">
-                <table id="table-oil">
-                    <thead><tr><th>Produit</th><th>Quantité</th><th>Unité</th><th>Alerte</th><th>Date</th><th>Magasinier</th><th class="center">Statut</th><th class="center">Action</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+            <div class="table-wrap">
+                <table id="table-oil"><thead><tr><th>Produit</th><th>Qté</th><th>Unité</th><th>Seuil</th><th>Date</th><th>Magasinier</th><th>Action</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
     </div>
 
-    <div id="bentonite" class="section">
+    <div id="bentonite" class="section hidden">
         <div class="card">
-            <h3>🏺 Bentonite & Chimie</h3>
+            <div class="card-title">Bentonite & Chimie</div>
             <form id="form-ben">
                 <input type="hidden" id="ben_id">
-                <div class="form-row">
+                <div class="form-grid">
                     <div class="form-group"><label>Produit</label>
-                         <div class="input-group">
-                            <select id="ben_name" style="flex:1;"></select>
-                            <button type="button" class="btn-add-item" onclick="window.app.addNewProduct('ben')"><i class="fas fa-plus"></i></button>
+                        <div class="input-group">
+                            <select id="ben_name"></select>
+                            <button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_chemicals', 'ben_name')"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     <div class="form-group"><label>Quantité</label><input type="number" id="ben_qty"></div>
-                    <div class="form-group"><label>Unité</label><input type="text" id="ben_unit"></div>
-                </div>
-                <div class="form-row">
+                    <div class="form-group"><label>Unité</label><input type="text" id="ben_unit" placeholder="Sac/Palette"></div>
                     <div class="form-group"><label>Alerte Min</label><input type="number" id="ben_alert" value="50"></div>
-                    <div class="form-group"><label>Date MAJ</label><input type="date" id="ben_date"></div>
-                    <div class="form-group"><label>Magasinier</label><select id="ben_user" class="mag-select"></select></div>
                 </div>
-                <div class="actions">
-                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-ben')"><i class="fas fa-plus"></i> Nouveau</button>
-                    <button type="button" class="btn btn-save" onclick="window.app.saveBen()"><i class="fas fa-save"></i> Enregistrer</button>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-ben')">Reset</button>
+                    <button type="button" class="btn btn-save" onclick="window.app.saveBen()">Enregistrer</button>
                 </div>
             </form>
         </div>
         <div class="card">
-            <div class="card-header"><h3>Stock Bentonite</h3>
-                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-ben', 'Bentonite')"><i class="fas fa-file-excel"></i> Excel</button>
+            <div class="card-header">
+                <div class="card-title">Inventaire</div>
+                <button class="btn btn-excel" onclick="window.app.exportTable('table-ben', 'Chimie')"><i class="fas fa-file-excel"></i> Excel</button>
             </div>
-            <div class="table-container">
-                <table id="table-ben">
-                    <thead><tr><th>Produit</th><th>Quantité</th><th>Unité</th><th>Alerte</th><th>Date</th><th>Magasinier</th><th class="center">Statut</th><th class="center">Action</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+            <div class="table-wrap">
+                <table id="table-ben"><thead><tr><th>Produit</th><th>Qté</th><th>Unité</th><th>Seuil</th><th>Date</th><th>Magasinier</th><th>Action</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
     </div>
 
-    <div id="stock" class="section">
+    <div id="gasoil" class="section hidden">
         <div class="card">
-            <h3>📦 Stock Matériel</h3>
-            <form id="form-stock">
-                <input type="hidden" id="stk_id">
-                <div class="form-row">
-                    <div class="form-group"><label>Désignation</label><input type="text" id="stk_des"></div>
-                    <div class="form-group"><label>Catégorie</label><select id="stk_cat"><option>Mécanique</option><option>Electrique</option><option>Soudage</option><option>Levage</option><option>Autre</option></select></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Quantité</label><input type="number" id="stk_qty"></div>
-                    <div class="form-group"><label>Emplacement</label><input type="text" id="stk_loc"></div>
-                    <div class="form-group"><label>Alerte</label><input type="number" id="stk_alert" value="5"></div>
-                    <div class="form-group"><label>Date</label><input type="date" id="stk_date"></div>
-                    <div class="form-group"><label>Magasinier</label><select id="stk_user" class="mag-select"></select></div>
-                </div>
-                <div class="actions">
-                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-stock')"><i class="fas fa-plus"></i> Nouveau</button>
-                    <button type="button" class="btn btn-save" onclick="window.app.saveStock()"><i class="fas fa-save"></i> Enregistrer</button>
-                </div>
-            </form>
-        </div>
-        <div class="card">
-            <div class="card-header"><h3>Liste Matériel</h3>
-                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-stock', 'Stock')"><i class="fas fa-file-excel"></i> Excel</button>
-            </div>
-            <div class="table-container">
-                <table id="table-stock">
-                    <thead><tr><th>Désignation</th><th>Catégorie</th><th>Emplacement</th><th>Quantité</th><th>Alerte</th><th>Date</th><th>Magasinier</th><th class="center">Statut</th><th class="center">Action</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="sortie" class="section">
-        <div class="card">
-            <h3>🚀 Sortie Matériel</h3>
-            <form id="form-sortie">
-                <div class="form-row">
-                    <div class="form-group"><label>Produit</label><input type="text" id="sort_nom"></div>
-                    <div class="form-group"><label>Quantité</label><input type="number" id="sort_qty"></div>
-                    <div class="form-group"><label>Destination</label><select id="sort_dest"><option>Chantier</option><option>Atelier</option><option>Casablanca</option></select></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Reçu par</label><input type="text" id="sort_rec"></div>
-                    <div class="form-group"><label>Date Sortie</label><input type="date" id="sort_date"></div>
-                    <div class="form-group"><label>Magasinier</label><select id="sort_user" class="mag-select"></select></div>
-                </div>
-                <div class="actions">
-                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-sortie')"><i class="fas fa-plus"></i> Nouveau</button>
-                    <button type="button" class="btn btn-save" onclick="window.app.saveSortie()"><i class="fas fa-check"></i> Valider</button>
-                </div>
-            </form>
-        </div>
-        <div class="card">
-            <div class="card-header"><h3>Historique Sorties</h3>
-                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-sortie', 'Sortie')"><i class="fas fa-file-excel"></i> Excel</button>
-            </div>
-            <div class="table-container">
-                <table id="table-sortie">
-                    <thead><tr><th>Produit</th><th>Quantité</th><th>Destination</th><th>Reçu par</th><th>Date</th><th>Magasinier</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="gasoil" class="section">
-        <div class="card">
-            <h3>⛽ Gestion Gasoil</h3>
-            <div style="background:#e8f4fd; color:#2980b9; padding:15px; border-left:5px solid #3498db; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
-                <span><i class="fas fa-info-circle"></i> Stock Actuel : <strong id="gas_val" style="font-size:18px;">Chargement...</strong> Litres</span>
-                <button class="btn-icon btn-update-stock" onclick="window.app.editGasoilStock()" title="Modifier Stock"><i class="fas fa-pen"></i></button>
+            <div class="card-title">⛽ Gestion Gasoil</div>
+            <div style="background:#eff6ff; color:#1e40af; padding:15px; border-radius:8px; margin:15px 0; display:flex; justify-content:space-between;">
+                <span>Stock Actuel : <strong id="gas_val" style="font-size:18px;">...</strong> Litres</span>
+                <button style="border:none; background:none; color:#2563eb; cursor:pointer;" onclick="window.app.editGasoilStock()"><i class="fas fa-pen"></i> Modifier</button>
             </div>
             <form id="form-gasoil">
-                <div class="form-row">
+                <div class="form-grid">
                     <div class="form-group"><label>Shift</label><select id="gas_shift"><option>Day</option><option>Night</option></select></div>
-                    <div class="form-group"><label>Machine</label><input list="gas_machines" id="gas_machine"><datalist id="gas_machines"><option value="ATLAS COPCO"><option value="TRUCK"><option value="EXPRESS"></datalist></div>
-                </div>
-                <div class="form-row">
+                    <div class="form-group"><label>Machine</label>
+                        <div class="input-group">
+                            <select id="gas_machine"></select>
+                            <button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_machines', 'gas_machine')"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
                     <div class="form-group"><label>Conso (L)</label><input type="number" id="gas_conso"></div>
-                    <div class="form-group"><label>Date</label><input type="date" id="gas_date"></div>
-                    <div class="form-group"><label>Heure</label><input type="time" id="gas_time"></div>
-                    <div class="form-group"><label>Magasinier</label><select id="gas_user" class="mag-select"></select></div>
+                    <div class="form-group"><label>Date / Heure</label><div style="display:flex; gap:5px;"><input type="date" id="gas_date"><input type="time" id="gas_time"></div></div>
                 </div>
-                <div class="actions">
-                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-gasoil')"><i class="fas fa-plus"></i> Nouveau</button>
-                    <button type="button" class="btn btn-delete" onclick="window.app.saveGasoil()"><i class="fas fa-check"></i> Enregistrer</button>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-gasoil')">Reset</button>
+                    <button type="button" class="btn btn-save" style="background:#ef4444;" onclick="window.app.saveGasoil()">Valider Conso</button>
                 </div>
             </form>
         </div>
         <div class="card">
-            <div class="card-header"><h3>Historique Gasoil</h3>
-                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-gasoil', 'Gasoil')"><i class="fas fa-file-excel"></i> Excel</button>
-            </div>
-            <div class="table-container">
-                <table id="table-gasoil">
-                    <thead><tr><th>Date</th><th>Heure</th><th>Machine</th><th>Shift</th><th>Conso (L)</th><th>Magasinier</th><th class="center">Action</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <div class="card-header"><div class="card-title">Historique</div><button class="btn btn-excel" onclick="window.app.exportTable('table-gasoil', 'Gasoil')"><i class="fas fa-file-excel"></i> Excel</button></div>
+            <div class="table-wrap"><table id="table-gasoil"><thead><tr><th>Date</th><th>Heure</th><th>Machine</th><th>Shift</th><th>Conso</th><th>User</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+        </div>
+    </div>
+
+    <div id="stock" class="section hidden">
+        <div class="card">
+            <div class="card-title">Entrée Matériel</div>
+            <form id="form-stock">
+                <input type="hidden" id="stk_id">
+                <div class="form-grid">
+                    <div class="form-group"><label>Désignation</label><input type="text" id="stk_des"></div>
+                    <div class="form-group"><label>Catégorie</label>
+                        <div class="input-group"><select id="stk_cat"></select><button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_cats', 'stk_cat')"><i class="fas fa-plus"></i></button></div>
+                    </div>
+                    <div class="form-group"><label>Qté</label><input type="number" id="stk_qty"></div>
+                    <div class="form-group"><label>Emplacement</label><input type="text" id="stk_loc"></div>
+                    <div class="form-group"><label>Seuil</label><input type="number" id="stk_alert" value="5"></div>
+                </div>
+                <div class="btn-row"><button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-stock')">Reset</button><button type="button" class="btn btn-save" onclick="window.app.saveStock()">Enregistrer</button></div>
+            </form>
+        </div>
+        <div class="card"><div class="card-header"><div class="card-title">Stock</div></div><div class="table-wrap"><table id="table-stock"><thead><tr><th>Nom</th><th>Cat</th><th>Loc</th><th>Qté</th><th>Seuil</th><th>Action</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+
+    <div id="sortie" class="section hidden">
+        <div class="card">
+            <div class="card-title">Sortie Matériel</div>
+            <form id="form-sortie">
+                <div class="form-grid">
+                    <div class="form-group"><label>Produit</label><input type="text" id="sort_nom"></div>
+                    <div class="form-group"><label>Qté</label><input type="number" id="sort_qty"></div>
+                    <div class="form-group"><label>Dest</label><select id="sort_dest"><option>Chantier</option><option>Atelier</option><option>Casablanca</option></select></div>
+                    <div class="form-group"><label>Reçu par</label><input type="text" id="sort_rec"></div>
+                </div>
+                <div class="btn-row"><button type="button" class="btn btn-save" onclick="window.app.saveSortie()">Valider Sortie</button></div>
+            </form>
+        </div>
+        <div class="card"><div class="card-header"><div class="card-title">Historique</div></div><div class="table-wrap"><table id="table-sortie"><thead><tr><th>Produit</th><th>Qté</th><th>Dest</th><th>Reçu par</th><th>Date</th><th>User</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+
+    <div id="activity" class="section hidden">
+        <div class="card">
+            <div class="card-header"><div class="card-title">Historique Global</div></div>
+            <div class="table-wrap"><table id="table-act"><thead><tr><th>Date</th><th>Heure</th><th>User</th><th>Action</th><th>Détails</th></tr></thead><tbody></tbody></table></div>
         </div>
     </div>
 
@@ -315,7 +318,6 @@
 
 <script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
 <script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
-
 <script type="module" src="app.js"></script>
 
 </body>
