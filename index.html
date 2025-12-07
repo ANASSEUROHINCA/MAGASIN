@@ -29,6 +29,7 @@ body {
 .main-container {
   display:flex; max-width:1400px; margin:20px auto; border-radius:16px;
   box-shadow:0 4px 24px rgba(80,90,155,0.08); overflow:hidden; min-height: calc(100vh - 40px);
+  background: white;
 }
 .sidebar {
   width:240px; background:#fff; border-right:1px solid var(--border); 
@@ -61,24 +62,24 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
 .login-overlay {
   position: fixed; top:0; left:0; width:100vw; height:100vh; 
   display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
   z-index:1000;
 }
-#login-form {
+.login-form {
   padding:40px; background:#fff; border-radius:16px;
   box-shadow:0 20px 60px rgba(0,0,0,0.3); min-width:360px;
 }
-#login-form h2 { font-weight:700; margin:0 0 24px 0; color:var(--accent); font-size:24px;}
-#user-select {
+.login-form h2 { font-weight:700; margin:0 0 24px 0; color:var(--accent); font-size:24px;}
+.login-form select {
   width:100%; font-size:15px; border-radius:8px; padding:12px 16px; 
   margin-bottom:20px; border:1.5px solid var(--border); font-family:inherit;
 }
-#login-form button {
+.login-form button {
   width:100%; background:var(--accent); border:none; border-radius:8px; 
   color:#fff; font-weight:600; padding:12px; font-size:15px; cursor:pointer; 
   transition:all 0.2s; font-family:inherit;
 }
-#login-form button:hover { background:#4c6de6; transform:translateY(-1px); box-shadow:0 4px 12px rgba(91,124,247,0.4);}
+.login-form button:hover { background:#4c6de6; transform:translateY(-1px); box-shadow:0 4px 12px rgba(91,124,247,0.4);}
 
 .page-header {
   display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;
@@ -97,12 +98,6 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
   font-size:13px; transition:all 0.2s; font-family:inherit;
 }
 .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
-.btn-success { background:var(--success); }
-.btn-success:hover { background:#059669; }
-.btn-warning { background:var(--warning); }
-.btn-warning:hover { background:#d97706; }
-.btn-danger { background:var(--danger); }
-.btn-danger:hover { background:#dc2626; }
 .btn-sm { padding:6px 12px; font-size:13px; }
 
 .stats-grid {
@@ -152,16 +147,13 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
 .data-table thead th {
   background:var(--accent-light); color:var(--accent); font-weight:600;
   padding:12px 16px; text-align:left; font-size:13px;
-  border-bottom:2px solid var(--accent); position:sticky; top:0;
+  border-bottom:2px solid var(--accent);
 }
-.data-table thead th:first-child { border-radius:8px 0 0 0;}
-.data-table thead th:last-child { border-radius:0 8px 0 0;}
 .data-table tbody td {
   padding:14px 16px; border-bottom:1px solid var(--border);
 }
 .data-table tbody tr { transition:background 0.15s; }
 .data-table tbody tr:hover { background:var(--accent-light); }
-.data-table tbody tr:last-child td { border-bottom:none; }
 
 .badge {
   display:inline-block; padding:4px 10px; border-radius:12px; 
@@ -170,7 +162,6 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
 .badge-success { background:#d1fae5; color:#065f46; }
 .badge-warning { background:#fef3c7; color:#92400e; }
 .badge-danger { background:#fee2e2; color:#991b1b; }
-.badge-info { background:#dbeafe; color:#1e40af; }
 
 .modal {
   position:fixed; top:0; left:0; width:100vw; height:100vh;
@@ -196,39 +187,19 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
 .modal-close:hover { background:var(--accent-light); color:var(--accent); }
 
 .qty-control {
-  display:flex; align-items:center; gap:12px;
+  display:flex; align-items:center; gap:12px; justify-content:center;
 }
 .qty-btn {
-  width:36px; height:36px; border:1.5px solid var(--border); 
-  background:#fff; border-radius:8px; cursor:pointer; font-size:18px;
-  font-weight:600; transition:all 0.2s; display:flex; align-items:center;
-  justify-content:center;
+  width:40px; height:40px; border:1.5px solid var(--border); 
+  background:#fff; border-radius:8px; cursor:pointer; font-size:16px;
+  font-weight:600; transition:all 0.2s;
 }
 .qty-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
 .qty-display {
-  font-size:20px; font-weight:700; min-width:60px; text-align:center;
-  padding:8px 16px; background:var(--accent-light); border-radius:8px;
+  font-size:24px; font-weight:700; min-width:80px; text-align:center;
+  padding:8px 20px; background:var(--accent-light); border-radius:8px;
   color:var(--accent);
 }
-
-.search-box {
-  position:relative; max-width:300px;
-}
-.search-box input {
-  width:100%; padding:10px 40px 10px 16px; border:1.5px solid var(--border);
-  border-radius:8px; font-size:14px; font-family:inherit;
-}
-.search-box::after {
-  content:'🔍'; position:absolute; right:12px; top:50%; 
-  transform:translateY(-50%); font-size:16px; pointer-events:none;
-}
-
-.empty-state {
-  text-align:center; padding:60px 20px; color:var(--text-light);
-}
-.empty-state-icon { font-size:64px; margin-bottom:16px; opacity:0.5;}
-.empty-state h3 { margin:0 0 8px 0; font-size:18px; color:var(--text);}
-.empty-state p { margin:0; font-size:14px;}
 
 .action-buttons {
   display:flex; gap:8px; justify-content:flex-end;
@@ -236,17 +207,12 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
 
 .alert {
   padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:14px;
-  display:flex; align-items:center; gap:12px;
 }
 .alert-success { background:#d1fae5; color:#065f46; border:1px solid #86efac;}
-.alert-warning { background:#fef3c7; color:#92400e; border:1px solid #fde68a;}
-.alert-danger { background:#fee2e2; color:#991b1b; border:1px solid #fecaca;}
 
 @media (max-width:920px){
   .main-container{ flex-direction:column;}
   .sidebar{ width:100%; }
-  nav ul { display:flex; overflow-x:auto; padding:8px;}
-  .nav-item { white-space:nowrap;}
   .content-area { padding:16px;}
   .stats-grid { grid-template-columns:1fr 1fr;}
   .form-grid { grid-template-columns:1fr;}
@@ -254,7 +220,7 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
   </style>
 </head>
 <body>
-  <div class="main-container" id="app">
+  <div class="main-container" id="app" style="display:none;">
     <aside class="sidebar">
       <div class="logo-area">
         <img src="https://img.icons8.com/glyph-neue/64/construction.png" class="logo" alt="Logo"/>
@@ -286,26 +252,25 @@ nav ul { list-style:none; padding:16px 12px; margin:0;}
   </div>
 
   <div id="login-overlay" class="login-overlay">
-    <form id="login-form">
-      <h2>Connexion</h2>
-      <select id="user-select" required>
-        <option value="" disabled selected>Choisissez votre nom...</option>
-        <option>Issam Abahmane</option>
-        <option>Mehdi Kridid</option>
-        <option>Yassine Faradi</option>
-        <option>Zakharia Essabir</option>
-        <option>Admin</option>
+    <div class="login-form">
+      <h2>Connexion EUROHINCA</h2>
+      <select id="user-select">
+        <option value="">Choisissez votre nom...</option>
+        <option value="Issam Abahmane">Issam Abahmane</option>
+        <option value="Mehdi Kridid">Mehdi Kridid</option>
+        <option value="Yassine Faradi">Yassine Faradi</option>
+        <option value="Zakharia Essabir">Zakharia Essabir</option>
+        <option value="Admin">Admin</option>
       </select>
-      <button type="submit">Se connecter</button>
-    </form>
+      <button id="login-btn">Se connecter</button>
+    </div>
   </div>
 
-  <!-- Modals -->
   <div id="edit-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="modal-title">Modifier le stock</h3>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-close" id="close-modal-btn">&times;</button>
       </div>
       <div id="modal-body"></div>
     </div>
@@ -326,144 +291,92 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// User Management
-let currentUser = null;
-function getUser(){ return localStorage.getItem('eurohinca_user')||""; }
-function setUser(name){ localStorage.setItem('eurohinca_user', name); }
+let currentUser = '';
+
 function nowDate(){ return new Date().toISOString().substr(0,10);}
 function nowTime(){ return new Date().toTimeString().substr(0,8);}
 
-// Login
-const overlay = document.getElementById('login-overlay');
-const form = document.getElementById('login-form');
-checkLogin();
-
-form.onsubmit = e => {
-  e.preventDefault();
-  const user = document.getElementById('user-select').value;
-  if (!user) return;
-  setUser(user); currentUser = user;
-  location.reload();
-};
-
-document.getElementById('logout-btn').onclick = ()=>{ 
-  localStorage.removeItem('eurohinca_user'); 
-  location.reload(); 
-}
-
-function checkLogin() {
-  const u = getUser();
-  if (!u) { overlay.style.display = 'flex'; }
-  else { 
-    overlay.style.display = 'none'; 
-    document.getElementById('user-info').textContent = u;
-    currentUser = u; 
+// Login Handler
+document.getElementById('login-btn').addEventListener('click', function() {
+  const userSelect = document.getElementById('user-select');
+  const userName = userSelect.value;
+  
+  if (!userName) {
+    alert('Veuillez choisir un utilisateur');
+    return;
   }
-}
-
-// Navigation
-const navItems = document.querySelectorAll('.nav-item');
-const panels = document.querySelectorAll('.panel');
-navItems.forEach(item=>{
-  item.onclick = ()=>{
-    navItems.forEach(i=>i.classList.remove('active'));
-    panels.forEach(p=>p.classList.remove('active'));
-    item.classList.add('active');
-    document.getElementById(item.dataset.tab+'-panel').classList.add('active');
-    loadPanel(item.dataset.tab);
-  };
+  
+  currentUser = userName;
+  localStorage.setItem('eurohinca_user', userName);
+  
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('user-info').textContent = userName;
+  
+  loadDashboard();
 });
 
-// Modal Functions
-function closeModal() {
-  document.getElementById('edit-modal').classList.remove('active');
-}
-
-function openEditModal(collection, docId, currentQty, itemName) {
-  const modal = document.getElementById('edit-modal');
-  document.getElementById('modal-title').textContent = `Modifier: ${itemName}`;
-  document.getElementById('modal-body').innerHTML = `
-    <div class="form-group">
-      <label>Quantité actuelle: <strong>${currentQty}</strong></label>
-    </div>
-    <div class="form-group">
-      <label>Nouvelle quantité</label>
-      <div class="qty-control">
-        <button type="button" class="qty-btn" onclick="changeQty(-10)">-10</button>
-        <button type="button" class="qty-btn" onclick="changeQty(-1)">-1</button>
-        <div class="qty-display" id="new-qty">${currentQty}</div>
-        <button type="button" class="qty-btn" onclick="changeQty(1)">+1</button>
-        <button type="button" class="qty-btn" onclick="changeQty(10)">+10</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Ou entrer directement:</label>
-      <input type="number" id="direct-qty" value="${currentQty}" min="0" 
-        onchange="document.getElementById('new-qty').textContent=this.value">
-    </div>
-    <div class="action-buttons" style="margin-top:24px;">
-      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
-      <button class="btn-primary" onclick="saveQty('${collection}','${docId}')">
-        Enregistrer
-      </button>
-    </div>
-  `;
-  modal.classList.add('active');
-}
-
-function changeQty(delta) {
-  const display = document.getElementById('new-qty');
-  const input = document.getElementById('direct-qty');
-  let current = parseInt(display.textContent);
-  let newVal = Math.max(0, current + delta);
-  display.textContent = newVal;
-  input.value = newVal;
-}
-
-async function saveQty(collection, docId) {
-  const newQty = parseInt(document.getElementById('direct-qty').value);
-  await db.collection(collection).doc(docId).update({ qty: newQty });
-  await db.collection("log_activity").add({
-    act: "Modification quantité",
-    collection: collection,
-    docId: docId,
-    newQty: newQty,
-    user: getUser(),
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  closeModal();
-  showAlert('Quantité mise à jour avec succès!', 'success');
-}
-
-function showAlert(message, type = 'success') {
-  const alertDiv = document.createElement('div');
-  alertDiv.className = `alert alert-${type}`;
-  alertDiv.textContent = message;
-  const activePanel = document.querySelector('.panel.active');
-  activePanel.insertBefore(alertDiv, activePanel.firstChild);
-  setTimeout(() => alertDiv.remove(), 3000);
-}
-
-// Panel Loading
-let panelLoaded = {};
-async function loadPanel(name) {
-  if(panelLoaded[name]) return;
-  switch(name){
-    case "dashboard": await loadDashboard(); break;
-    case "oils": await loadOils(); break;
-    case "chemicals": await loadChemicals(); break;
-    case "stock": await loadStock(); break;
-    case "sortie": await loadSortie(); break;
-    case "gasoil": await loadGasoil(); break;
-    case "history": await loadHistory(); break;
+// Check if already logged in
+window.addEventListener('DOMContentLoaded', function() {
+  const savedUser = localStorage.getItem('eurohinca_user');
+  if (savedUser) {
+    currentUser = savedUser;
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('user-info').textContent = savedUser;
+    loadDashboard();
   }
-  panelLoaded[name]=true;
+});
+
+// Logout
+document.getElementById('logout-btn').addEventListener('click', function() {
+  localStorage.removeItem('eurohinca_user');
+  location.reload();
+});
+
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    
+    this.classList.add('active');
+    const tab = this.dataset.tab;
+    document.getElementById(tab + '-panel').classList.add('active');
+    
+    // Load panel content
+    switch(tab) {
+      case 'dashboard': loadDashboard(); break;
+      case 'oils': loadOils(); break;
+      case 'chemicals': loadChemicals(); break;
+      case 'stock': loadStock(); break;
+      case 'sortie': loadSortie(); break;
+      case 'gasoil': loadGasoil(); break;
+      case 'history': loadHistory(); break;
+    }
+  });
+});
+
+// Modal functions
+document.getElementById('close-modal-btn').addEventListener('click', function() {
+  document.getElementById('edit-modal').classList.remove('active');
+});
+
+function showAlert(message) {
+  const alert = document.createElement('div');
+  alert.className = 'alert alert-success';
+  alert.textContent = message;
+  
+  const activePanel = document.querySelector('.panel.active');
+  activePanel.insertBefore(alert, activePanel.firstChild);
+  
+  setTimeout(() => alert.remove(), 3000);
 }
 
 // Dashboard
-async function loadDashboard(){
-  const dst = document.getElementById('dashboard-panel');
-  dst.innerHTML = `
+function loadDashboard() {
+  const panel = document.getElementById('dashboard-panel');
+  panel.innerHTML = `
     <div class="page-header">
       <h2>Tableau de Bord</h2>
     </div>
@@ -491,122 +404,223 @@ async function loadDashboard(){
     </div>
     <div class="card">
       <div class="card-header">
-        <h3>Activité récente</h3>
+        <h3>Bienvenue ${currentUser}!</h3>
       </div>
-      <div id="recent-activity"></div>
+      <p>Utilisez le menu de navigation pour gérer votre inventaire.</p>
     </div>
   `;
   
   // Load stats
-  db.collection("inventory_oil").get().then(q=>{
-    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
-    document.getElementById("stat-oil").textContent = tot;
+  db.collection("inventory_oil").get().then(qs => {
+    const total = qs.docs.reduce((sum, doc) => sum + (Number(doc.data().qty) || 0), 0);
+    document.getElementById('stat-oil').textContent = total;
   });
-  db.collection("inventory_ben").get().then(q=>{
-    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
-    document.getElementById("stat-chem").textContent = tot;
+  
+  db.collection("inventory_ben").get().then(qs => {
+    const total = qs.docs.reduce((sum, doc) => sum + (Number(doc.data().qty) || 0), 0);
+    document.getElementById('stat-chem').textContent = total;
   });
-  db.collection("inventory_stock").get().then(q=>{
-    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
-    document.getElementById("stat-stock").textContent = tot;
+  
+  db.collection("inventory_stock").get().then(qs => {
+    const total = qs.docs.reduce((sum, doc) => sum + (Number(doc.data().qty) || 0), 0);
+    document.getElementById('stat-stock').textContent = total;
   });
-  db.collection("gasoil_total").doc("global").get().then(doc=>{
-    document.getElementById("stat-diesel").textContent = 
-      doc.exists ? (doc.data().qty||0) : 0;
-  });
-
-  // Recent activity
-  db.collection("log_activity").orderBy("timestamp","desc").limit(5).get().then(qs=>{
-    const html = qs.docs.map(doc=>{
-      const d = doc.data();
-      return `<div style="padding:12px 0; border-bottom:1px solid var(--border);">
-        <div style="font-weight:600; color:var(--text);">${d.act||'Action'}</div>
-        <div style="font-size:13px; color:var(--text-light); margin-top:4px;">
-          ${d.user||''} • ${d.timestamp ? new Date(d.timestamp.seconds*1000).toLocaleString() : ''}
-        </div>
-      </div>`;
-    }).join('');
-    document.getElementById('recent-activity').innerHTML = html || 
-      '<div class="empty-state"><p>Aucune activité récente</p></div>';
+  
+  db.collection("gasoil_total").doc("global").get().then(doc => {
+    document.getElementById('stat-diesel').textContent = doc.exists ? (doc.data().qty || 0) : 0;
   });
 }
 
 // Oils Panel
-async function loadOils(){
-  const dst = document.getElementById('oils-panel');
-  dst.innerHTML = `
+function loadOils() {
+  const panel = document.getElementById('oils-panel');
+  panel.innerHTML = `
     <div class="page-header">
       <h2>Huiles & Graisses</h2>
-      <button class="btn-primary" onclick="showAddOilForm()">
-        ➕ Ajouter un produit
-      </button>
+      <button class="btn-primary" id="show-add-oil">➕ Ajouter</button>
     </div>
-    <div class="card" id="add-oil-card" style="display:none;">
-      <div class="card-header">
-        <h3>Nouveau produit</h3>
+    <div class="card" id="add-oil-form" style="display:none;">
+      <div class="card-header"><h3>Nouveau produit</h3></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Type de produit</label>
+          <input type="text" id="oil-type" placeholder="Ex: TOTAL AZOLLA ZS 68">
+        </div>
+        <div class="form-group">
+          <label>Quantité</label>
+          <input type="number" id="oil-qty" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label>Unité</label>
+          <select id="oil-unit">
+            <option>L</option>
+            <option>kg</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Seuil d'alerte</label>
+          <input type="number" id="oil-alert" min="0" value="10">
+        </div>
       </div>
-      <form id="oil-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Type de produit</label>
-            <input type="text" id="oil-type" required placeholder="Ex: TOTAL AZOLLA ZS 68">
-          </div>
-          <div class="form-group">
-            <label>Quantité initiale</label>
-            <input type="number" id="oil-qty" required min="0" value="0">
-          </div>
-          <div class="form-group">
-            <label>Unité</label>
-            <select id="oil-unit">
-              <option>L</option>
-              <option>kg</option>
-              <option>unité</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Seuil d'alerte</label>
-            <input type="number" id="oil-alert" min="0" value="10">
-          </div>
-        </div>
-        <div class="action-buttons">
-          <button type="button" class="btn-secondary" onclick="hideAddOilForm()">Annuler</button>
-          <button type="submit" class="btn-primary">Ajouter</button>
-        </div>
-      </form>
+      <div class="action-buttons">
+        <button class="btn-secondary" id="cancel-oil">Annuler</button>
+        <button class="btn-primary" id="save-oil">Ajouter</button>
+      </div>
     </div>
     <div class="card">
-      <div class="card-header">
-        <h3>Inventaire</h3>
-        <div class="search-box">
-          <input type="text" id="oil-search" placeholder="Rechercher...">
-        </div>
-      </div>
+      <div class="card-header"><h3>Inventaire</h3></div>
       <table class="data-table">
         <thead>
           <tr>
             <th>Produit</th>
             <th>Quantité</th>
             <th>Unité</th>
-            <th>Alerte</th>
             <th>Statut</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="oil-tbody"></tbody>
+        <tbody id="oils-tbody"></tbody>
       </table>
     </div>
   `;
-
-  const form = document.getElementById('oil-form');
-  const tbody = document.getElementById('oil-tbody');
-
-  // Load inventory
-  db.collection("inventory_oil").onSnapshot(qs=>{
-    if(qs.empty) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><p>Aucun produit</p></td></tr>';
+  
+  document.getElementById('show-add-oil').addEventListener('click', () => {
+    document.getElementById('add-oil-form').style.display = 'block';
+  });
+  
+  document.getElementById('cancel-oil').addEventListener('click', () => {
+    document.getElementById('add-oil-form').style.display = 'none';
+  });
+  
+  document.getElementById('save-oil').addEventListener('click', async () => {
+    const data = {
+      type: document.getElementById('oil-type').value,
+      qty: Number(document.getElementById('oil-qty').value),
+      unit: document.getElementById('oil-unit').value,
+      alert: Number(document.getElementById('oil-alert').value),
+      date: nowDate(),
+      user: currentUser
+    };
+    
+    if (!data.type) {
+      alert('Veuillez entrer un type de produit');
       return;
     }
     
-    // Group by type and sum quantities
+    await db.collection("inventory_oil").add(data);
+    await db.collection("log_activity").add({
+      act: "Ajout Huile",
+      ...data,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    document.getElementById('add-oil-form').style.display = 'none';
+    document.getElementById('oil-type').value = '';
+    document.getElementById('oil-qty').value = '0';
+    showAlert('Produit ajouté!');
+  });
+  
+  // Load data
+  db.collection("inventory_oil").onSnapshot(qs => {
+    const tbody = document.getElementById('oils-tbody');
+    if (qs.empty) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#64748b;">Aucun produit</td></tr>';
+      return;
+    }
+    
     const grouped = {};
-    qs.docs
+    qs.docs.forEach(doc => {
+      const d = doc.data();
+      if (!grouped[d.type]) {
+        grouped[d.type] = { qty: 0, unit: d.unit, alert: d.alert || 10, id: doc.id };
+      }
+      grouped[d.type].qty += Number(d.qty || 0);
+    });
+    
+    tbody.innerHTML = Object.entries(grouped).map(([type, info]) => {
+      const status = info.qty === 0 ? 'danger' : info.qty <= info.alert ? 'warning' : 'success';
+      const statusText = info.qty === 0 ? 'Rupture' : info.qty <= info.alert ? 'Stock bas' : 'En stock';
+      
+      return `<tr>
+        <td><strong>${type}</strong></td>
+        <td><strong>${info.qty}</strong></td>
+        <td>${info.unit}</td>
+        <td><span class="badge badge-${status}">${statusText}</span></td>
+        <td>
+          <button class="btn-sm btn-primary" onclick='editQty("inventory_oil", "${info.id}", ${info.qty}, "${type}")'>
+            Modifier
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  });
+}
+
+// Edit quantity function
+window.editQty = function(collection, docId, currentQty, itemName) {
+  const modal = document.getElementById('edit-modal');
+  document.getElementById('modal-title').textContent = `Modifier: ${itemName}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>Quantité actuelle: <strong>${currentQty}</strong></label>
+    </div>
+    <div class="form-group" style="margin:24px 0;">
+      <label style="margin-bottom:12px;">Nouvelle quantité</label>
+      <div class="qty-control">
+        <button type="button" class="qty-btn" onclick="changeQty(-10)">-10</button>
+        <button type="button" class="qty-btn" onclick="changeQty(-1)">-1</button>
+        <div class="qty-display" id="new-qty">${currentQty}</div>
+        <button type="button" class="qty-btn" onclick="changeQty(1)">+1</button>
+        <button type="button" class="qty-btn" onclick="changeQty(10)">+10</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Ou entrer directement:</label>
+      <input type="number" id="direct-qty" value="${currentQty}" min="0" 
+        style="width:100%; padding:10px; border:1.5px solid #e2e8f0; border-radius:8px;"
+        onchange="document.getElementById('new-qty').textContent=this.value">
+    </div>
+    <div class="action-buttons" style="margin-top:24px;">
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveNewQty('${collection}','${docId}')">
+        Enregistrer
+      </button>
+    </div>
+  `;
+  modal.classList.add('active');
+};
+
+window.changeQty = function(delta) {
+  const display = document.getElementById('new-qty');
+  const input = document.getElementById('direct-qty');
+  let current = parseInt(display.textContent);
+  let newVal = Math.max(0, current + delta);
+  display.textContent = newVal;
+  input.value = newVal;
+};
+
+window.saveNewQty = async function(collection, docId) {
+  const newQty = parseInt(document.getElementById('direct-qty').value);
+  await db.collection(collection).doc(docId).update({ qty: newQty });
+  await db.collection("log_activity").add({
+    act: "Modification quantité",
+    collection: collection,
+    newQty: newQty,
+    user: currentUser,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  closeModal();
+  showAlert('Quantité mise à jour!');
+};
+
+window.closeModal = function() {
+  document.getElementById('edit-modal').classList.remove('active');
+};
+
+// Chemicals Panel
+function loadChemicals() {
+  const panel = document.getElementById('chemicals-panel');
+  panel.innerHTML = `
+    <div class="page-header">
+      <h2>Bentonite & Chimie</h2>
+      <button class="btn-primary" id="
