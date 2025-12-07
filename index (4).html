@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EUROHINCA - Gestion Stock Cloud</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- STYLE GLOBAL IDENTIQUE --- */
+        body { font-family: 'Segoe UI', 'Roboto', sans-serif; margin: 0; padding: 0; background-color: #eef2f6; color: #333; display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
+        .sidebar { width: 270px; background: #2c3e50; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 100; }
+        .logo-container { padding: 20px; background: white; text-align: center; border-bottom: 1px solid #ddd; }
+        .logo-container img { max-width: 140px; }
+        .user-selector { padding: 15px; background: #34495e; border-bottom: 1px solid #46627f; }
+        .user-selector label { font-size: 11px; text-transform: uppercase; color: #bdc3c7; margin-bottom: 5px; display: block; }
+        .user-selector select { width: 100%; padding: 8px; border-radius: 4px; border: none; background: #ecf0f1; font-weight: 600; color: #2c3e50; font-size: 12px; }
+        .menu { flex: 1; overflow-y: auto; padding-top: 10px; }
+        .menu-item { padding: 15px 20px; display: flex; align-items: center; cursor: pointer; color: #ecf0f1; transition: 0.2s; border-left: 4px solid transparent; font-size: 14px; }
+        .menu-item:hover { background: #3e5871; padding-left: 25px; }
+        .menu-item.active { background: #34495e; border-left-color: #3498db; color: white; font-weight: 700; }
+        .menu-item i { width: 25px; margin-right: 10px; text-align: center; font-size: 16px; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .header h1 { margin: 0; font-size: 20px; color: #2c3e50; font-weight: 700; text-transform: uppercase; }
+        .badge-user { background:#e8f4fd; color:#2c3e50; padding:8px 15px; font-size:13px; border-radius: 4px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .card h3 { margin: 0; color: #2c3e50; font-size: 16px; font-weight: 700; text-transform: uppercase; }
+        .header-buttons { display: flex; gap: 10px; }
+        .form-row { display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 200px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; color: #7f8c8d; margin-bottom: 5px; text-transform: uppercase; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #dfe6e9; border-radius: 5px; font-size: 13px; background: #fdfdfd; box-sizing: border-box; }
+        .mag-select { background-color: #e8f4fd !important; color: #2980b9; font-weight: bold; border: 1px solid #aed6f1 !important; }
+        .input-group { display: flex; gap: 5px; }
+        .btn-add-item { background: #3498db; color: white; border: none; border-radius: 5px; width: 40px; cursor: pointer; font-size: 14px; }
+        .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; color: white; }
+        .btn-save { background: #27ae60; } .btn-new { background: #f39c12; } .btn-delete { background: #c0392b; }
+        .btn-header { padding: 8px 15px; font-size: 13px; border-radius: 4px; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-excel { background: #217346; } .filter-btn { background: #3498db; }
+        .table-container { overflow-x: auto; border: 1px solid #eee; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 800px; }
+        thead { background: #34495e; color: white; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f1f1f1; }
+        th.center, td.center { text-align: center; }
+        td.action-col { white-space: nowrap; width: 80px; text-align: center; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: white; display: inline-block; min-width: 60px; text-align: center; }
+        .badge-ok { background: #27ae60; } .badge-low { background: #e74c3c; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .filter-box { background: #f0f7ff; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; border: 1px solid #cfe2f3; }
+        .alert-box { background: #fee2e2; color: #c0392b; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #c0392b; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .container-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .container-col { display: flex; flex-direction: column; gap: 20px; }
+        .cnt-card { background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .cnt-header { background: #4db6ac; color: white; padding: 8px 15px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .cnt-body { padding: 20px; background: #fdfdfd; }
+        .cnt-icon { font-size: 50px; margin-bottom: 10px; }
+        .c-blue { color: #3498db; } .c-red { color: #e74c3c; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 15px; padding: 5px; transition: 0.2s; }
+        .btn-edit { color: #3498db; } .btn-trash { color: #e74c3c; } .btn-update-stock { color: #2980b9; margin-left: 10px; cursor: pointer; border: none; background: none;}
+        .section { display: none; }
+        .section.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo-container">
+        <h2 style="color:#2c3e50; margin:0;">EUROHINCA</h2>
+    </div>
+    
+    <div class="user-selector">
+        <label>Magasinier en service :</label>
+        <select id="current_user">
+            <option value="Issam Abahmane">Issam Abahmane</option>
+            <option value="Mehdi Kridid">Mehdi Kridid</option>
+            <option value="Yassine Faradi">Yassine Faradi</option>
+            <option value="Zakaria Essabir">Zakaria Essabir</option>
+            <option value="Admin">Admin</option>
+        </select>
+    </div>
+
+    <div class="menu">
+        <div class="menu-item active" onclick="window.app.nav('dashboard', this)"><i class="fas fa-chart-pie"></i> Tableau de Bord</div>
+        <div class="menu-item" onclick="window.app.nav('activity', this)"><i class="fas fa-users-cog"></i> Activité & Suivi</div>
+        <div class="menu-item" onclick="window.app.nav('huiles', this)"><i class="fas fa-oil-can"></i> Huiles & Graisses</div>
+        <div class="menu-item" onclick="window.app.nav('bentonite', this)"><i class="fas fa-flask"></i> Bentonite & Chimie</div>
+        <div class="menu-item" onclick="window.app.nav('stock', this)"><i class="fas fa-cubes"></i> Stock Matériel</div>
+        <div class="menu-item" onclick="window.app.nav('sortie', this)"><i class="fas fa-dolly-flatbed"></i> Matériel Sortie</div>
+        <div class="menu-item" onclick="window.app.nav('gasoil', this)"><i class="fas fa-gas-pump"></i> Gestion Gasoil</div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <h1 id="page-title">Tableau de Bord</h1>
+        <div class="badge-user">
+            <i class="fas fa-user-circle"></i> <span id="header_user">Issam Abahmane</span>
+        </div>
+    </div>
+
+    <div id="dashboard" class="section active">
+        <div id="dash-alerts"></div>
+        <div class="card">
+            <div class="card-header"><h3>📊 Vue Globale</h3></div>
+            <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                <div style="flex:1; background:#3498db; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Huiles</div><h2 id="st-oil" style="margin:5px 0;">0</h2></div>
+                <div style="flex:1; background:#e67e22; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Bentonite</div><h2 id="st-ben" style="margin:5px 0;">0</h2></div>
+                <div style="flex:1; background:#27ae60; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Matériel</div><h2 id="st-mat" style="margin:5px 0;">0</h2></div>
+                <div style="flex:1; background:#c0392b; color:white; padding:15px; border-radius:6px; text-align:center;"><div>Gasoil (L)</div><h2 id="st-gas" style="margin:5px 0;">0</h2></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="activity" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h3>📜 Journal d'Activité</h3>
+                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-act', 'Activite')"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="table-act">
+                    <thead><tr><th>Date</th><th>Heure</th><th>Magasinier</th><th>Action</th><th>Détails</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="huiles" class="section">
+        <div class="card">
+            <h3>🛢️ Gestion Huiles & Graisses</h3>
+            <form id="form-oil">
+                <input type="hidden" id="oil_id"> <div class="form-row">
+                    <div class="form-group"><label>Produit</label>
+                        <div class="input-group">
+                            <select id="oil_name" style="flex:1;"></select>
+                            <button type="button" class="btn-add-item" onclick="window.app.addNewProduct('oil')"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Quantité</label><input type="number" id="oil_qty"></div>
+                    <div class="form-group"><label>Unité</label><input type="text" id="oil_unit"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Alerte Min</label><input type="number" id="oil_alert" value="2"></div>
+                    <div class="form-group"><label>Date MAJ</label><input type="date" id="oil_date"></div>
+                    <div class="form-group"><label>Magasinier</label><select id="oil_user" class="mag-select"></select></div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-oil')"><i class="fas fa-plus"></i> Nouveau</button>
+                    <button type="button" class="btn btn-save" onclick="window.app.saveOil()"><i class="fas fa-save"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>Stock Huiles</h3>
+                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-oil', 'Huiles')"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="table-oil">
+                    <thead><tr><th>Produit</th><th>Quantité</th><th>Unité</th><th>Alerte</th><th>Date</th><th>Magasinier</th><th class="center">Statut</th><th class="center">Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="bentonite" class="section">
+        <div class="card">
+            <h3>🏺 Bentonite & Chimie</h3>
+            <form id="form-ben">
+                <input type="hidden" id="ben_id">
+                <div class="form-row">
+                    <div class="form-group"><label>Produit</label>
+                         <div class="input-group">
+                            <select id="ben_name" style="flex:1;"></select>
+                            <button type="button" class="btn-add-item" onclick="window.app.addNewProduct('ben')"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Quantité</label><input type="number" id="ben_qty"></div>
+                    <div class="form-group"><label>Unité</label><input type="text" id="ben_unit"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Alerte Min</label><input type="number" id="ben_alert" value="50"></div>
+                    <div class="form-group"><label>Date MAJ</label><input type="date" id="ben_date"></div>
+                    <div class="form-group"><label>Magasinier</label><select id="ben_user" class="mag-select"></select></div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-ben')"><i class="fas fa-plus"></i> Nouveau</button>
+                    <button type="button" class="btn btn-save" onclick="window.app.saveBen()"><i class="fas fa-save"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>Stock Bentonite</h3>
+                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-ben', 'Bentonite')"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="table-ben">
+                    <thead><tr><th>Produit</th><th>Quantité</th><th>Unité</th><th>Alerte</th><th>Date</th><th>Magasinier</th><th class="center">Statut</th><th class="center">Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="stock" class="section">
+        <div class="card">
+            <h3>📦 Stock Matériel</h3>
+            <form id="form-stock">
+                <input type="hidden" id="stk_id">
+                <div class="form-row">
+                    <div class="form-group"><label>Désignation</label><input type="text" id="stk_des"></div>
+                    <div class="form-group"><label>Catégorie</label><select id="stk_cat"><option>Mécanique</option><option>Electrique</option><option>Soudage</option><option>Levage</option><option>Autre</option></select></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Quantité</label><input type="number" id="stk_qty"></div>
+                    <div class="form-group"><label>Emplacement</label><input type="text" id="stk_loc"></div>
+                    <div class="form-group"><label>Alerte</label><input type="number" id="stk_alert" value="5"></div>
+                    <div class="form-group"><label>Date</label><input type="date" id="stk_date"></div>
+                    <div class="form-group"><label>Magasinier</label><select id="stk_user" class="mag-select"></select></div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-stock')"><i class="fas fa-plus"></i> Nouveau</button>
+                    <button type="button" class="btn btn-save" onclick="window.app.saveStock()"><i class="fas fa-save"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>Liste Matériel</h3>
+                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-stock', 'Stock')"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="table-stock">
+                    <thead><tr><th>Désignation</th><th>Catégorie</th><th>Emplacement</th><th>Quantité</th><th>Alerte</th><th>Date</th><th>Magasinier</th><th class="center">Statut</th><th class="center">Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="sortie" class="section">
+        <div class="card">
+            <h3>🚀 Sortie Matériel</h3>
+            <form id="form-sortie">
+                <div class="form-row">
+                    <div class="form-group"><label>Produit</label><input type="text" id="sort_nom"></div>
+                    <div class="form-group"><label>Quantité</label><input type="number" id="sort_qty"></div>
+                    <div class="form-group"><label>Destination</label><select id="sort_dest"><option>Chantier</option><option>Atelier</option><option>Casablanca</option></select></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Reçu par</label><input type="text" id="sort_rec"></div>
+                    <div class="form-group"><label>Date Sortie</label><input type="date" id="sort_date"></div>
+                    <div class="form-group"><label>Magasinier</label><select id="sort_user" class="mag-select"></select></div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-sortie')"><i class="fas fa-plus"></i> Nouveau</button>
+                    <button type="button" class="btn btn-save" onclick="window.app.saveSortie()"><i class="fas fa-check"></i> Valider</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>Historique Sorties</h3>
+                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-sortie', 'Sortie')"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="table-sortie">
+                    <thead><tr><th>Produit</th><th>Quantité</th><th>Destination</th><th>Reçu par</th><th>Date</th><th>Magasinier</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="gasoil" class="section">
+        <div class="card">
+            <h3>⛽ Gestion Gasoil</h3>
+            <div style="background:#e8f4fd; color:#2980b9; padding:15px; border-left:5px solid #3498db; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fas fa-info-circle"></i> Stock Actuel : <strong id="gas_val" style="font-size:18px;">Chargement...</strong> Litres</span>
+                <button class="btn-icon btn-update-stock" onclick="window.app.editGasoilStock()" title="Modifier Stock"><i class="fas fa-pen"></i></button>
+            </div>
+            <form id="form-gasoil">
+                <div class="form-row">
+                    <div class="form-group"><label>Shift</label><select id="gas_shift"><option>Day</option><option>Night</option></select></div>
+                    <div class="form-group"><label>Machine</label><input list="gas_machines" id="gas_machine"><datalist id="gas_machines"><option value="ATLAS COPCO"><option value="TRUCK"><option value="EXPRESS"></datalist></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Conso (L)</label><input type="number" id="gas_conso"></div>
+                    <div class="form-group"><label>Date</label><input type="date" id="gas_date"></div>
+                    <div class="form-group"><label>Heure</label><input type="time" id="gas_time"></div>
+                    <div class="form-group"><label>Magasinier</label><select id="gas_user" class="mag-select"></select></div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-new" onclick="window.app.resetForm('form-gasoil')"><i class="fas fa-plus"></i> Nouveau</button>
+                    <button type="button" class="btn btn-delete" onclick="window.app.saveGasoil()"><i class="fas fa-check"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>Historique Gasoil</h3>
+                <button class="btn-header btn-excel" onclick="window.app.exportTable('table-gasoil', 'Gasoil')"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="table-gasoil">
+                    <thead><tr><th>Date</th><th>Heure</th><th>Machine</th><th>Shift</th><th>Conso (L)</th><th>Magasinier</th><th class="center">Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
