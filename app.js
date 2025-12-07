@@ -1,369 +1,292 @@
-// --- IMPORT FIREBASE ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-// --- CONFIGURATION (PASTE YOUR FIREBASE KEYS HERE) ---
+// --- PASTE YOUR CONFIG HERE ---
 const firebaseConfig = {
     apiKey: "AIzaSyChTXTsCZZxFGZyheznVWlQ_jO8LroXZbY",
+
     authDomain: "stock-fdfe7.firebaseapp.com",
+
     projectId: "stock-fdfe7",
+
     storageBucket: "stock-fdfe7.firebasestorage.app",
+
     messagingSenderId: "771102774872",
+
     appId: "1:771102774872:web:c9cb25329927ec71a09c2d",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- GLOBAL VARIABLES ---
-let currentUser = "Issam Abahmane";
+// GLOBAL STATE
+let currentUser = null;
 let gasoilStock = 0;
+window.currentData = {}; // Stores lists for editing
 
-// Base Data
-const baseOilTypes = ["TAIL SEAL GREASE", "PLANTOGEL ECO 2 S", "RENOLIT LX-EP 2", "QUAKERPASTE SC (2)", "QUAKERTEK MOLYBDAL-2", "HYDRAULIC VH68", "XPRO HYPER 10W40", "SUMMER COOLANT C40", "PARCOOL EG", "REDUCT EP 150", "REDUCT EP 320"];
-const baseBenTypes = ["SODA ASH", "TUNNEL GEL PLUS", "CLAY CUTTER", "DRILLING BENTONITE-SUPER GEL-X", "DRILLING BENTONITE HYDRAUL EZ", "SUSPEND IT", "CAL", "PAC-L", "TUNNEL LUPE", "CEBO IPR-503", "F-SEAL 20KG/BAG", "FLEUR DE CHAUX"];
-
-// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Set default dates
-    document.querySelectorAll('input[type="date"]').forEach(i => i.valueAsDate = new Date());
-    
-    // Listen for User Changes
-    document.getElementById('current_user').addEventListener('change', updateHeaderUser);
-    updateHeaderUser();
+    // 1. Navigation Logic (Fixed)
+    const menuItems = document.querySelectorAll('.menu-item');
+    const sections = document.querySelectorAll('.section');
+    const pageTitle = document.getElementById('page-title');
 
-    // Populate Dropdowns
-    populateSelect('oil_name', baseOilTypes);
-    populateSelect('ben_name', baseBenTypes);
-
-    // --- START REAL-TIME LISTENERS (The Magic Part) ---
-    listenToCollection('inventory_oil', renderOil);
-    listenToCollection('inventory_ben', renderBen);
-    listenToCollection('inventory_stock', renderStock);
-    listenToCollection('log_sortie', renderSortie);
-    listenToCollection('log_gasoil', renderGasoil);
-    listenToCollection('log_activity', renderActivity);
-    
-    // Listen to Settings (Gasoil Stock)
-    onSnapshot(doc(db, "settings", "global_config"), (docSnap) => {
-        if (docSnap.exists()) {
-            gasoilStock = docSnap.data().gasoilStock || 0;
-            document.getElementById('gas_val').textContent = gasoilStock;
-            document.getElementById('st-gas').textContent = gasoilStock;
-            checkAlerts();
-        } else {
-            // Create if doesn't exist
-            updateDoc(doc(db, "settings", "global_config"), { gasoilStock: 23600 }).catch(() => {});
-        }
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Remove active classes
+            menuItems.forEach(i => i.classList.remove('active'));
+            sections.forEach(s => s.classList.add('hidden'));
+            
+            // Add active to clicked
+            item.classList.add('active');
+            const targetId = item.getAttribute('data-target');
+            document.getElementById(targetId).classList.remove('hidden');
+            pageTitle.textContent = item.innerText;
+        });
     });
+
+    // 2. Login Logic
+    document.getElementById('btn-login-submit').addEventListener('click', () => {
+        const user = document.getElementById('login-user').value;
+        if(!user) return alert("Sélectionnez un nom");
+        
+        currentUser = user;
+        document.getElementById('current-user-display').textContent = currentUser;
+        
+        // Hide Login, Show App
+        document.getElementById('login-screen').style.opacity = '0';
+        setTimeout(() => document.getElementById('login-screen').classList.add('hidden'), 500);
+        
+        // Start Listeners only after login
+        startAppListeners();
+    });
+
+    // 3. Seeder (Your Lists)
+    document.getElementById('btn-seed').addEventListener('click', seedDatabase);
+
+    // 4. Set Dates
+    document.querySelectorAll('input[type="date"]').forEach(i => i.valueAsDate = new Date());
 });
 
-// --- HELPER FUNCTIONS ---
-function updateHeaderUser() {
-    currentUser = document.getElementById('current_user').value;
-    document.getElementById('header_user').textContent = currentUser;
-    document.querySelectorAll('.mag-select').forEach(el => {
-        el.innerHTML = document.getElementById('current_user').innerHTML;
-        el.value = currentUser;
+// --- LISTENER START ---
+function startAppListeners() {
+    // Inventory
+    listenToCol('inventory_oil', renderOil);
+    listenToCol('inventory_ben', renderBen);
+    listenToCol('inventory_stock', renderStock);
+    listenToCol('log_gasoil', renderGasoil);
+    listenToCol('log_sortie', renderSortie);
+    listenToCol('log_activity', renderActivity);
+
+    // Settings (Gasoil Stock)
+    onSnapshot(doc(db, "settings", "global_config"), (s) => {
+        if(s.exists()) {
+            gasoilStock = s.data().gasoilStock || 0;
+            document.getElementById('gas_val').textContent = gasoilStock;
+            document.getElementById('st-gas').textContent = gasoilStock;
+        }
+    });
+
+    // Dynamic Lists (The + Button Data)
+    listenToDropdown('list_oils', 'oil_name');
+    listenToDropdown('list_chemicals', 'ben_name');
+    listenToDropdown('list_machines', 'gas_machine');
+    listenToDropdown('list_cats', 'stk_cat');
+}
+
+// --- DATABASE FUNCTIONS ---
+
+// 1. DYNAMIC LISTS (Your Request)
+async function seedDatabase() {
+    if(!confirm("Cela va écraser les listes par défaut. Continuer ?")) return;
+
+    // A. CHEMICALS
+    const chemicals = [
+        "SODA ASH", "TUNNEL GEL PLUS", "CLAY CUTTER", "DRILLING BENTONITE-SUPER GEL-X",
+        "DRILLING BENTONITE HYDRAUL EZ", "DRILLING BENTONITE SWELL WELL SW150",
+        "SUSPEND IT", "CAL", "PAC-L", "TUNNEL LUPE", "CEBO IPR-503", "F-SEAL 20KG/BAG"
+    ];
+    await setDoc(doc(db, "lists", "list_chemicals"), { items: chemicals });
+
+    // B. MACHINES
+    const machines = [
+        "CRANE 7737-B-50", "MANITOU", "TRUCK", "TGCC", "ATLAS COPCO",
+        "HIMOINSA", "EXPRESS SAFI", "EXPRESS CASABLANCA", "MUTSHIBISHI CASABLANCA", "CAMION"
+    ];
+    await setDoc(doc(db, "lists", "list_machines"), { items: machines });
+
+    // C. OILS (Default)
+    const oils = ["HYDRAULIC 68", "TAIL SEAL GREASE", "EP2 GREASE", "15W40 ENGINE"];
+    await setDoc(doc(db, "lists", "list_oils"), { items: oils });
+
+    // D. CATEGORIES
+    const cats = ["Mécanique", "Electrique", "Levage", "Soudage", "EPI"];
+    await setDoc(doc(db, "lists", "list_cats"), { items: cats });
+
+    alert("Listes mises à jour avec succès !");
+}
+
+function listenToDropdown(docName, selectId) {
+    onSnapshot(doc(db, "lists", docName), (snap) => {
+        if(snap.exists()) {
+            const items = snap.data().items || [];
+            const sel = document.getElementById(selectId);
+            sel.innerHTML = '';
+            items.sort().forEach(i => {
+                let opt = document.createElement('option');
+                opt.value = i; opt.text = i; sel.add(opt);
+            });
+        }
     });
 }
 
-function populateSelect(id, items) {
-    const sel = document.getElementById(id);
-    sel.innerHTML = '';
-    items.forEach(i => {
-        let opt = document.createElement('option');
-        opt.value = i; opt.text = i; sel.add(opt);
-    });
-}
-
-// --- FIREBASE LISTENERS ---
-function listenToCollection(colName, renderCallback) {
-    const q = query(collection(db, colName), orderBy("date", "desc"), limit(100));
-    onSnapshot(q, (snapshot) => {
-        let data = [];
-        snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...doc.data() });
-        });
-        renderCallback(data);
-    });
-}
-
-// --- CORE ACTIONS (Save/Edit) ---
-
-// 1. OILS
-window.app.saveOil = async function() {
-    const id = document.getElementById('oil_id').value;
-    const item = {
-        type: document.getElementById('oil_name').value,
-        qty: parseFloat(document.getElementById('oil_qty').value) || 0,
-        unit: document.getElementById('oil_unit').value,
-        alert: parseFloat(document.getElementById('oil_alert').value) || 2,
-        date: document.getElementById('oil_date').value,
-        user: document.getElementById('oil_user').value
-    };
-
-    if (id) {
-        await updateDoc(doc(db, "inventory_oil", id), item);
-        logAction("Modif Huile", item.type);
-    } else {
-        await addDoc(collection(db, "inventory_oil"), item);
-        logAction("Ajout Huile", item.type);
+window.app.addDynamicItem = async function(docName, selectId) {
+    const val = prompt("Nouveau nom à ajouter :");
+    if(!val) return;
+    
+    const docRef = doc(db, "lists", docName);
+    const snap = await getDoc(docRef);
+    let items = [];
+    if(snap.exists()) items = snap.data().items;
+    
+    if(!items.includes(val.toUpperCase())) {
+        items.push(val.toUpperCase());
+        await setDoc(docRef, { items: items }); // Updates DB, Listener updates UI
     }
-    alert("Enregistré !");
-    window.app.resetForm('form-oil');
 };
 
-// 2. BENTONITE
-window.app.saveBen = async function() {
-    const id = document.getElementById('ben_id').value;
-    const item = {
-        nom: document.getElementById('ben_name').value,
-        qty: parseFloat(document.getElementById('ben_qty').value) || 0,
-        unit: document.getElementById('ben_unit').value,
-        alert: parseFloat(document.getElementById('ben_alert').value) || 50,
-        date: document.getElementById('ben_date').value,
-        user: document.getElementById('ben_user').value
-    };
-
-    if (id) {
-        await updateDoc(doc(db, "inventory_ben", id), item);
-        logAction("Modif Bentonite", item.nom);
-    } else {
-        await addDoc(collection(db, "inventory_ben"), item);
-        logAction("Ajout Bentonite", item.nom);
-    }
-    alert("Enregistré !");
-    window.app.resetForm('form-ben');
-};
-
-// 3. STOCK
-window.app.saveStock = async function() {
+// 2. SAVING DATA
+window.app.saveOil = async () => saveGeneric('inventory_oil', 'oil', 'type', 'oil_name');
+window.app.saveBen = async () => saveGeneric('inventory_ben', 'ben', 'nom', 'ben_name');
+window.app.saveStock = async () => {
+    // Custom for stock because fields are different
     const id = document.getElementById('stk_id').value;
     const item = {
-        des: document.getElementById('stk_des').value,
-        cat: document.getElementById('stk_cat').value,
-        qty: parseFloat(document.getElementById('stk_qty').value) || 0,
-        loc: document.getElementById('stk_loc').value,
-        alert: parseFloat(document.getElementById('stk_alert').value) || 5,
-        date: document.getElementById('stk_date').value,
-        user: document.getElementById('stk_user').value
+        des: val('stk_des'), cat: val('stk_cat'), qty: num('stk_qty'),
+        loc: val('stk_loc'), alert: num('stk_alert'), user: currentUser,
+        date: new Date().toISOString().split('T')[0]
     };
-
-    if(!item.des) return alert("Nom requis");
-
-    if (id) {
-        await updateDoc(doc(db, "inventory_stock", id), item);
-        logAction("Modif Stock", item.des);
-    } else {
-        await addDoc(collection(db, "inventory_stock"), item);
-        logAction("Ajout Stock", item.des);
-    }
-    alert("Enregistré !");
+    if(!item.des) return alert("Erreur");
+    await handleDbSave('inventory_stock', id, item, "Stock", item.des);
     window.app.resetForm('form-stock');
-};
+}
 
-// 4. SORTIE
-window.app.saveSortie = async function() {
+window.app.saveSortie = async () => {
     const item = {
-        nom: document.getElementById('sort_nom').value,
-        qty: parseFloat(document.getElementById('sort_qty').value) || 0,
-        dest: document.getElementById('sort_dest').value,
-        rec: document.getElementById('sort_rec').value,
-        date: document.getElementById('sort_date').value,
-        user: document.getElementById('sort_user').value
+        nom: val('sort_nom'), qty: num('sort_qty'), dest: val('sort_dest'),
+        rec: val('sort_rec'), user: currentUser, date: new Date().toISOString()
     };
-    await addDoc(collection(db, "log_sortie"), item);
-    logAction("Sortie", `${item.qty} ${item.nom} -> ${item.dest}`);
-    alert("Validé !");
+    await addDoc(collection(db, 'log_sortie'), item);
+    logAction("Sortie", `${item.qty} ${item.nom}`);
+    alert("Sortie Validée");
     window.app.resetForm('form-sortie');
-};
+}
 
-// 5. GASOIL
-window.app.saveGasoil = async function() {
-    const conso = parseFloat(document.getElementById('gas_conso').value) || 0;
-    if (conso <= 0) return alert("Quantité invalide");
-
+window.app.saveGasoil = async () => {
+    const c = num('gas_conso');
+    if(c <= 0) return alert("Erreur Conso");
     const item = {
-        date: document.getElementById('gas_date').value,
-        time: document.getElementById('gas_time').value,
-        mac: document.getElementById('gas_machine').value,
-        sh: document.getElementById('gas_shift').value,
-        conso: conso,
-        user: document.getElementById('gas_user').value
+        mac: val('gas_machine'), sh: val('gas_shift'), conso: c,
+        date: val('gas_date'), time: val('gas_time'), user: currentUser
     };
-
-    // 1. Add Log
-    await addDoc(collection(db, "log_gasoil"), item);
-    // 2. Update Total Stock
-    const newStock = gasoilStock - conso;
-    await updateDoc(doc(db, "settings", "global_config"), { gasoilStock: newStock });
-    
-    logAction("Conso Gasoil", `${conso}L - ${item.mac}`);
-    alert("Enregistré !");
+    await addDoc(collection(db, 'log_gasoil'), item);
+    await updateDoc(doc(db, "settings", "global_config"), { gasoilStock: gasoilStock - c });
+    logAction("Gasoil", `${c}L - ${item.mac}`);
+    alert("Enregistré");
     window.app.resetForm('form-gasoil');
-};
-
-window.app.editGasoilStock = async function() {
-    let v = prompt("Entrez le stock réel actuel (Litres):", gasoilStock);
-    if(v) {
-        await updateDoc(doc(db, "settings", "global_config"), { gasoilStock: parseFloat(v) });
-    }
 }
 
-// --- LOGGING ---
-async function logAction(act, det) {
-    const log = {
-        date: new Date().toLocaleDateString('fr-FR'),
-        time: new Date().toLocaleTimeString('fr-FR'),
+window.app.editGasoilStock = async () => {
+    const n = prompt("Nouveau stock réel :", gasoilStock);
+    if(n) await updateDoc(doc(db, "settings", "global_config"), { gasoilStock: parseFloat(n) });
+}
+
+// 3. HELPERS
+async function saveGeneric(col, prefix, nameField, nameId) {
+    const id = document.getElementById(prefix+'_id').value;
+    const item = {
+        [nameField]: val(nameId),
+        qty: num(prefix+'_qty'),
+        unit: val(prefix+'_unit'),
+        alert: num(prefix+'_alert'),
         user: currentUser,
-        act: act,
-        det: det,
-        timestamp: Date.now() // For sorting
+        date: new Date().toISOString().split('T')[0]
     };
-    await addDoc(collection(db, "log_activity"), log);
+    if(!item[nameField]) return alert("Nom manquant");
+    await handleDbSave(col, id, item, prefix.toUpperCase(), item[nameField]);
+    window.app.resetForm('form-'+prefix);
 }
 
-// --- RENDERERS (Display Data) ---
-function renderOil(list) {
-    let t = document.querySelector('#table-oil tbody'); t.innerHTML = '';
+async function handleDbSave(col, id, item, type, name) {
+    if(id) {
+        await updateDoc(doc(db, col, id), item);
+        logAction(`Modif ${type}`, name);
+    } else {
+        await addDoc(collection(db, col), item);
+        logAction(`Ajout ${type}`, name);
+    }
+    alert("Succès");
+}
+
+function listenToCol(col, cb) {
+    const q = query(collection(db, col), orderBy(col.includes('log')?'date':'qty', 'desc'), limit(50));
+    onSnapshot(q, (snap) => {
+        let l = []; snap.forEach(d => l.push({id: d.id, ...d.data()}));
+        window.currentData[col] = l;
+        cb(l);
+    });
+}
+
+function logAction(act, det) {
+    addDoc(collection(db, 'log_activity'), {
+        date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(),
+        user: currentUser, act: act, det: det, timestamp: Date.now()
+    });
+}
+
+// 4. RENDERERS
+function renderOil(l) { renderTable('table-oil', l, ['type','qty','unit','alert','date','user'], 'inventory_oil'); document.getElementById('st-oil').innerText = l.length; }
+function renderBen(l) { renderTable('table-ben', l, ['nom','qty','unit','alert','date','user'], 'inventory_ben'); document.getElementById('st-ben').innerText = l.length; }
+function renderStock(l) {
+    const t = document.querySelector('#table-stock tbody'); t.innerHTML = '';
+    l.forEach(i => t.innerHTML += `<tr><td>${i.des}</td><td>${i.cat}</td><td>${i.loc}</td><td>${i.qty}</td><td>${i.alert}</td><td class="center"><button class="btn-plus" onclick="window.app.editItem('inventory_stock','${i.id}')"><i class="fas fa-pen"></i></button></td></tr>`);
+    document.getElementById('st-mat').innerText = l.length;
+}
+function renderSortie(l) {
+    const t = document.querySelector('#table-sortie tbody'); t.innerHTML = '';
+    l.forEach(i => t.innerHTML += `<tr><td>${i.nom}</td><td>${i.qty}</td><td>${i.dest}</td><td>${i.rec}</td><td>${i.date.slice(0,10)}</td><td>${i.user}</td></tr>`);
+}
+function renderGasoil(l) {
+    const t = document.querySelector('#table-gasoil tbody'); t.innerHTML = '';
+    l.forEach(i => t.innerHTML += `<tr><td>${i.date}</td><td>${i.time}</td><td>${i.mac}</td><td>${i.sh}</td><td>${i.conso}</td><td>${i.user}</td><td><i class="fas fa-check" style="color:green;"></i></td></tr>`);
+}
+function renderActivity(l) {
+    const t = document.querySelector('#table-act tbody'); t.innerHTML = '';
+    l.sort((a,b)=>b.timestamp-a.timestamp).forEach(i => t.innerHTML += `<tr><td>${i.date}</td><td>${i.time}</td><td>${i.user}</td><td>${i.act}</td><td>${i.det}</td></tr>`);
+}
+
+function renderTable(tid, list, keys, col) {
+    const t = document.querySelector(`#${tid} tbody`); t.innerHTML = '';
     list.forEach(i => {
-        let st = i.qty <= i.alert ? '<span class="badge badge-low">Bas</span>' : '<span class="badge badge-ok">OK</span>';
-        t.innerHTML += `<tr><td>${i.type}</td><td>${i.qty}</td><td>${i.unit}</td><td>${i.alert}</td><td>${i.date}</td><td>${i.user}</td><td class="center">${st}</td><td class="center"><button class="btn-icon btn-edit" onclick="window.app.editOil('${i.id}')"><i class="fas fa-pen"></i></button></td></tr>`;
-    });
-    document.getElementById('st-oil').textContent = list.length;
-    window.currentOilList = list;
-}
-
-function renderBen(list) {
-    let t = document.querySelector('#table-ben tbody'); t.innerHTML = '';
-    list.forEach(i => {
-        let st = i.qty <= i.alert ? '<span class="badge badge-low">Bas</span>' : '<span class="badge badge-ok">OK</span>';
-        t.innerHTML += `<tr><td>${i.nom}</td><td>${i.qty}</td><td>${i.unit}</td><td>${i.alert}</td><td>${i.date}</td><td>${i.user}</td><td class="center">${st}</td><td class="center"><button class="btn-icon btn-edit" onclick="window.app.editBen('${i.id}')"><i class="fas fa-pen"></i></button></td></tr>`;
-    });
-    document.getElementById('st-ben').textContent = list.length;
-    window.currentBenList = list;
-}
-
-function renderStock(list) {
-    let t = document.querySelector('#table-stock tbody'); t.innerHTML = '';
-    list.forEach(i => {
-        let st = i.qty <= i.alert ? '<span class="badge badge-low">Bas</span>' : '<span class="badge badge-ok">OK</span>';
-        t.innerHTML += `<tr><td>${i.des}</td><td>${i.cat}</td><td>${i.loc}</td><td>${i.qty}</td><td>${i.alert}</td><td>${i.date}</td><td>${i.user}</td><td class="center">${st}</td><td class="center"><button class="btn-icon btn-edit" onclick="window.app.editStock('${i.id}')"><i class="fas fa-pen"></i></button></td></tr>`;
-    });
-    document.getElementById('st-mat').textContent = list.length;
-    window.currentStockList = list;
-}
-
-function renderSortie(list) {
-    let t = document.querySelector('#table-sortie tbody'); t.innerHTML = '';
-    list.forEach(i => {
-        t.innerHTML += `<tr><td>${i.nom}</td><td>${i.qty}</td><td>${i.dest}</td><td>${i.rec}</td><td>${i.date}</td><td>${i.user}</td></tr>`;
+        let row = '<tr>';
+        keys.forEach(k => row += `<td>${i[k]||''}</td>`);
+        let badge = (i.qty <= i.alert) ? '<span style="color:red; font-weight:bold;">BAS</span>' : '<span style="color:green;">OK</span>';
+        row += `<td><div style="display:flex; align-items:center; gap:10px;">${badge} <button class="btn-plus" style="width:30px; height:30px;" onclick="window.app.editItem('${col}','${i.id}')"><i class="fas fa-pen"></i></button></div></td></tr>`;
+        t.innerHTML += row;
     });
 }
 
-function renderGasoil(list) {
-    let t = document.querySelector('#table-gasoil tbody'); t.innerHTML = '';
-    list.forEach(i => {
-        t.innerHTML += `<tr><td>${i.date}</td><td>${i.time}</td><td>${i.mac}</td><td>${i.sh}</td><td>${i.conso}</td><td>${i.user}</td><td class="center"><button class="btn-icon btn-trash" onclick="window.app.deleteLog('log_gasoil','${i.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-    });
-}
-
-function renderActivity(list) {
-    let t = document.querySelector('#table-act tbody'); t.innerHTML = '';
-    // Sort by timestamp desc
-    list.sort((a,b) => b.timestamp - a.timestamp).forEach(l => {
-        t.innerHTML += `<tr><td>${l.date}</td><td>${l.time}</td><td>${l.user}</td><td>${l.act}</td><td>${l.det}</td></tr>`;
-    });
-}
-
-// --- EDIT PREPARATION ---
-window.app.editOil = function(id) {
-    let item = window.currentOilList.find(i => i.id === id);
-    document.getElementById('oil_id').value = id;
-    document.getElementById('oil_name').value = item.type;
-    document.getElementById('oil_qty').value = item.qty;
-    document.getElementById('oil_unit').value = item.unit;
-    document.getElementById('oil_alert').value = item.alert;
-    document.getElementById('oil_date').value = item.date;
-    document.getElementById('form-oil').scrollIntoView({behavior:'smooth'});
-}
-
-window.app.editBen = function(id) {
-    let item = window.currentBenList.find(i => i.id === id);
-    document.getElementById('ben_id').value = id;
-    document.getElementById('ben_name').value = item.nom;
-    document.getElementById('ben_qty').value = item.qty;
-    document.getElementById('ben_unit').value = item.unit;
-    document.getElementById('ben_alert').value = item.alert;
-    document.getElementById('ben_date').value = item.date;
-    document.getElementById('form-ben').scrollIntoView({behavior:'smooth'});
-}
-
-window.app.editStock = function(id) {
-    let item = window.currentStockList.find(i => i.id === id);
-    document.getElementById('stk_id').value = id;
-    document.getElementById('stk_des').value = item.des;
-    document.getElementById('stk_cat').value = item.cat;
-    document.getElementById('stk_qty').value = item.qty;
-    document.getElementById('stk_loc').value = item.loc;
-    document.getElementById('stk_alert').value = item.alert;
-    document.getElementById('stk_date').value = item.date;
-    document.getElementById('form-stock').scrollIntoView({behavior:'smooth'});
-}
-
-window.app.deleteLog = async function(col, id) {
-    if(confirm("Supprimer cette entrée ?")) {
-        await deleteDoc(doc(db, col, id));
-        // Note: For gasoil, this simplifies logic by not refunding stock automatically to avoid errors. 
-        // Manually adjust stock if needed.
+// 5. UTILS
+window.app.editItem = (col, id) => {
+    const item = window.currentData[col].find(x => x.id === id);
+    if(col === 'inventory_oil') { fill('oil', id, item, 'type'); }
+    if(col === 'inventory_ben') { fill('ben', id, item, 'nom'); }
+    if(col === 'inventory_stock') {
+        document.getElementById('stk_id').value = id;
+        document.getElementById('stk_des').value = item.des;
+        document.getElementById('stk_cat').value = item.cat;
+        document.getElementById('stk_qty').value = item.qty;
+        document.getElementById('stk_loc').value = item.loc;
+        document.getElementById('stk_alert').value = item.alert;
     }
 }
-
-// --- UTILITIES ---
-window.app.nav = function(id, el) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('page-title').textContent = el.innerText;
-}
-
-window.app.resetForm = function(id) {
-    document.getElementById(id).reset();
-    document.querySelectorAll('input[type="hidden"]').forEach(i => i.value = '');
-    updateHeaderUser();
-}
-
-window.app.exportTable = function(id, name) {
-    let t = document.getElementById(id);
-    let html = t.outerHTML.replace(/ /g, '%20');
-    let a = document.createElement('a');
-    a.href = 'data:application/vnd.ms-excel,' + html;
-    a.download = name + '.xls';
-    a.click();
-}
-
-window.app.addNewProduct = function(type) {
-    let val = prompt("Nouveau Nom du Produit:");
-    if(val) {
-        let sel = document.getElementById(type === 'oil' ? 'oil_name' : 'ben_name');
-        let opt = document.createElement('option');
-        opt.value = val.toUpperCase();
-        opt.text = val.toUpperCase();
-        sel.add(opt);
-        sel.value = val.toUpperCase();
-    }
-}
-
-function checkAlerts() {
-    let div = document.getElementById('dash-alerts'); 
-    div.innerHTML = ''; 
-    if(gasoilStock < 20000) {
-        div.innerHTML += `<div class="alert-box"><i class="fas fa-exclamation-triangle"></i> Gasoil Critique (${gasoilStock}L)</div>`;
-    }
-}
-
-// Expose app functions to window so HTML onclick works
-window.app = window.app || {};
+function fill(p, id, item,
