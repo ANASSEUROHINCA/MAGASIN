@@ -1,220 +1,701 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EUROHINCA | Gestion Stock</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary: #2563eb; --bg: #f8fafc; --sidebar: #1e293b; --text: #334155;
-            --white: #ffffff; --border: #e2e8f0; --success: #10b981; --danger: #ef4444;
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* LOGIN */
-        #login-screen { position: fixed; inset: 0; background: #0f172a; z-index: 1000; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
-        .login-box { background: white; padding: 40px; border-radius: 16px; width: 320px; text-align: center; }
-        .login-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        
-        /* LAYOUT */
-        .sidebar { width: 260px; background: var(--sidebar); color: white; display: flex; flex-direction: column; }
-        .logo { padding: 24px; font-size: 20px; font-weight: 700; border-bottom: 1px solid #334155; color: #60a5fa; }
-        .menu { flex: 1; padding: 20px 10px; }
-        .menu-item { padding: 12px 16px; margin-bottom: 4px; cursor: pointer; border-radius: 8px; color: #94a3b8; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
-        .menu-item:hover, .menu-item.active { background: #334155; color: white; }
-        
-        .content { flex: 1; padding: 32px; overflow-y: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .user-pill { background: white; padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border); font-weight: 600; font-size: 14px; }
-        
-        /* COMPONENTS */
-        .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card h3 { margin: 0 0 20px 0; font-size: 16px; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
-        
-        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
-        .field label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; text-transform: uppercase; }
-        .field input, .field select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: #f8fafc; box-sizing: border-box; }
-        .field input:focus { border-color: var(--primary); outline: none; background: white; }
-        
-        .btn-row { display: flex; justify-content: flex-end; gap: 12px; }
-        .btn { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; color: white; font-size: 13px; }
-        .btn-save { background: var(--success); }
-        .btn-reset { background: #64748b; }
-        .btn-plus { background: var(--primary); color: white; border: none; width: 38px; cursor: pointer; border-radius: 6px; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { text-align: left; padding: 12px; background: #f1f5f9; color: #475569; font-weight: 600; }
-        td { padding: 12px; border-top: 1px solid var(--border); }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-        
-        .hidden { display: none; }
-        
-        /* STATS */
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-        .stat-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-        .stat-num { font-size: 24px; font-weight: 700; margin: 8px 0; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>EUROHINCA Stock Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --color-bg: #e8ecfa;
+  --glass-bg: rgba(255,255,255,0.55);
+  --glass-border: rgba(40, 80, 220, 0.07);
+  --accent: #3357e7;
+  --accent2: #f7b633;
+  --text: #222;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(120deg,#dbeafe 0%,#c7d2fe 100%);
+  min-height:100vh; margin:0;
+}
+.main-container {
+  display:flex; max-width:1200px; margin:40px auto; border-radius:28px;
+  box-shadow:0 8px 40px rgba(80,90,155,0.16),0 1.5px 4px #3357e72e; overflow:hidden;
+}
+.sidebar {
+  width:220px; min-width:180px; border-right:1px solid var(--glass-border); padding:0 1rem;
+  display:flex;flex-direction:column; background:var(--glass-bg);
+}
+.logo-area { text-align:center; padding:2rem 0 1rem 0;}
+.logo { width:55px; border-radius:14px;}
+.logo-area h2 { margin:0.4rem 0; letter-spacing:1px; font-weight:700; color:var(--accent);}
+nav ul { list-style:none; padding:0; margin:2rem 0 0 0;}
+.nav-item { padding:0.95em 0.7em; margin:0.32em 0;
+  border-radius:10px; cursor:pointer; color:var(--text); font-weight:500;
+  transition:background 0.12s,color 0.12s;
+}
+.nav-item.active,.nav-item:hover {
+  background: linear-gradient(90deg,var(--accent2)11%,var(--accent)67%);
+  color:white;
+}
+.user-info { margin-top:auto; padding-bottom:1.8em; color:#415; font-weight:600;}
+.logout { background:#fff0; border:1px solid #5176e0; color:#3357e7;
+  padding:0.45em 1.1em; border-radius:13px; font-weight:600; margin-bottom:1.4em; cursor:pointer;
+}
+.content-area {
+  flex:1; background:var(--glass-bg); padding:2.1em 2.4em; min-height:620px; min-width:0;
+}
+.panel { display:none;}
+.panel.active { display:block;}
+
+.glass {
+  background:var(--glass-bg); backdrop-filter:blur(10px) saturate(1.2);
+  border:1.6px solid var(--glass-border); box-shadow:0 1.6px 13px rgba(30,70,230,0.045);
+}
+.login-overlay {
+  position: fixed; top:0; left:0; width:100vw; height:100vh; 
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(216,221,240,0.68);
+  z-index:20;
+}
+#login-form {
+  padding:2.4rem 2.2rem; background:var(--glass-bg); border-radius:22px;
+  box-shadow:0 4px 36px #3357e72c; min-width:320px;
+  display:flex;flex-direction:column;align-items:center;
+}
+#login-form h2 { font-weight:700; margin-bottom:1.3em; color:var(--accent);}
+#user-select {
+  font-size:1em; border-radius:8px; padding:0.7em 1.3em; margin-bottom:1.4em; border:1px solid #d6deee;
+}
+#login-form button {
+  background:linear-gradient(90deg,var(--accent)30%,var(--accent2)100%);
+  border:none; border-radius:9px; color:#fff; font-weight:700; padding:0.75em 2.2em;
+  font-size:1em; cursor:pointer; box-shadow:0 2px 13px var(--accent2)33;
+}
+@media (max-width:920px){
+  .main-container{ flex-direction:column;}
+  .sidebar{ width:100%; flex-direction:row; min-width:0;}
+}
+h2 { margin-top: 0;}
+.form-row { display: flex; gap: 1em; flex-wrap: wrap; align-items:flex-end;}
+input, select { border: 1px solid #cbd5e1; border-radius: 7px; padding: .5em .9em; }
+form { margin-bottom: 1.5em;}
+button.add-btn {margin-left: -.4em; border-radius: 50%; width: 2.1em; height:2.1em; border:none; background: var(--accent2); color: #223; font-size: 1.22em; font-weight:bold;box-shadow:0 2px 6px #f7b63344;}
+.data-table { width:100%; border-collapse:collapse; margin-top:14px;}
+.data-table th, .data-table td { border: 1px solid #dbeafe; padding: 0.57em 0.9em;}
+.data-table th { background: #e0eafe; color: var(--accent); }
+.data-table tr:nth-child(even){ background: #f3f6fd;}
+.panel h3 { display:flex;align-items:center;}
+.panel h3 button.add-btn{ margin-left:0.7em;}
+input[type='number'] { width: 75px;}
+input[type='date'] { width: 128px;}
+.msg { margin: .7em 0 1.2em 0; color: #2c5;}
+.stats-cards {display: flex; gap: 1.5em; margin-bottom: 2em;}
+.stat-card {background: var(--glass-bg); border-radius: 17px; padding: .83em 2em; box-shadow:0 1.1px 9px #b8c9f526;}
+.stat-card h4{margin:0 0 .4em 0;}
+.stat-card .stat {font-weight: bold; color: var(--accent);}
+input[type=button].edit-btn { color: #e48c00;border:none;padding:0.33em 1em;border-radius:7px;background:rgba(247,182,51,0.09);}
+  </style>
 </head>
 <body>
+  <!-- Main Glass UI -->
+  <div class="main-container glass" id="app">
+    <aside class="sidebar glass">
+      <div class="logo-area">
+        <img src="https://img.icons8.com/glyph-neue/64/construction.png" 
+         class="logo" alt="Logo"/>
+        <h2>EUROHINCA</h2>
+      </div>
+      <nav>
+        <ul>
+          <li class="nav-item active" data-tab="dashboard">Dashboard</li>
+          <li class="nav-item" data-tab="oils">Huiles & Graisses</li>
+          <li class="nav-item" data-tab="chemicals">Bentonite & Chimie</li>
+          <li class="nav-item" data-tab="stock">Stock Matériel</li>
+          <li class="nav-item" data-tab="sortie">Sortie Matériel</li>
+          <li class="nav-item" data-tab="gasoil">Gestion Gasoil</li>
+          <li class="nav-item" data-tab="history">Historique</li>
+        </ul>
+      </nav>
+      <div class="user-info" id="user-info"></div>
+      <button id="logout-btn" class="logout">Déconnexion</button>
+    </aside>
+    <main class="content-area glass">
+      <section id="dashboard-panel" class="panel active"></section>
+      <section id="oils-panel" class="panel"></section>
+      <section id="chemicals-panel" class="panel"></section>
+      <section id="stock-panel" class="panel"></section>
+      <section id="sortie-panel" class="panel"></section>
+      <section id="gasoil-panel" class="panel"></section>
+      <section id="history-panel" class="panel"></section>
+    </main>
+  </div>
+  <!-- Login Overlay -->
+  <div id="login-overlay" class="login-overlay glass">
+    <form id="login-form">
+      <h2>Connectez-vous</h2>
+      <select id="user-select" required>
+        <option value="" disabled selected>Choisissez votre nom...</option>
+        <option>Issam Abahmane</option>
+        <option>Mehdi Kridid</option>
+        <option>Yassine Faradi</option>
+        <option>Zakharia Essabir</option>
+        <option>Admin</option>
+      </select>
+      <button type="submit">Connexion</button>
+    </form>
+  </div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script>
+// ===== FIREBASE INIT
+const firebaseConfig = {
+    apiKey: "AIzaSyChTXTsCZZxFGZyheznVWlQ_jO8LroXZbY",
+    authDomain: "stock-fdfe7.firebaseapp.com",
+    projectId: "stock-fdfe7",
+    storageBucket: "stock-fdfe7.firebasestorage.app",
+    messagingSenderId: "771102774872",
+    appId: "1:771102774872:web:c9cb25329927ec71a09c2d"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    <div id="login-screen">
-        <form class="login-box" onsubmit="event.preventDefault();"> <i class="fas fa-layer-group" style="font-size: 40px; color: var(--primary); margin-bottom: 16px;"></i>
-            <h2 style="margin: 0 0 20px 0;">EUROHINCA STOCK</h2>
-            <select id="login-user" class="login-input">
-                <option value="" disabled selected>Choisir Utilisateur</option>
-                <option value="Issam Abahmane">Issam Abahmane</option>
-                <option value="Mehdi Kridid">Mehdi Kridid</option>
-                <option value="Yassine Faradi">Yassine Faradi</option>
-                <option value="Zakaria Essabir">Zakaria Essabir</option>
-                <option value="Admin">Admin</option>
-            </select>
-            <input type="password" id="login-pass" class="login-input" placeholder="Mot de passe (Optionnel)" autocomplete="current-password">
-            <button class="btn-main" id="btn-login-submit">CONNEXION</button>
-        </form>
+// ===== GLOBAL USER/FORMS
+let currentUser = null;
+function getUser(){ return localStorage.getItem('eurohinca_user')||""; }
+function setUser(name){ localStorage.setItem('eurohinca_user', name); }
+
+function nowDate(){ return (new Date()).toISOString().substr(0,10);}
+function nowTime(){ return (new Date()).toTimeString().substr(0,8);}
+function info(msg,container){const e=document.createElement('div');e.className='msg';e.textContent=msg;container.appendChild(e);return ()=>(e.remove());}
+
+// ===== LOGIN UI
+const overlay = document.getElementById('login-overlay');
+const userSelect = document.getElementById('user-select');
+const form = document.getElementById('login-form');
+const userInfo = document.getElementById('user-info');
+const logoutBtn = document.getElementById('logout-btn');
+// Auto-login if already in storage
+checkLogin();
+
+form.onsubmit = e => {
+  e.preventDefault();
+  const user = userSelect.value;
+  if (!user) return;
+  setUser(user); currentUser = user; overlay.style.display = 'none';
+  userInfo.textContent = "Utilisateur: "+user;
+  location.reload();
+};
+logoutBtn.onclick = ()=>{ localStorage.removeItem('eurohinca_user'); location.reload(); }
+
+function checkLogin() {
+  const u = getUser();
+  if (!u) { overlay.style.display = 'flex'; }
+  else { overlay.style.display = 'none'; userInfo.textContent = "Utilisateur: "+u; currentUser = u; }
+}
+
+// ===== NAVIGATION
+const navItems = document.querySelectorAll('.nav-item');
+const panels = document.querySelectorAll('.panel');
+navItems.forEach(item=>{
+  item.onclick = ()=>{
+    navItems.forEach(i=>i.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById(item.dataset.tab+'-panel').classList.add('active');
+    if(window.scrollTo)window.scrollTo(0,0);
+    // Panel-specific initial load
+    loadPanel(item.dataset.tab);
+  };
+});
+
+// ==== FIRESTORE DROPDOWN MANAGEMENT: DYNAMIC LISTS
+const listSeeds = {
+  list_oils:["TOTAL AZOLLA ZS 68","SHELL GADUS S2 V220","TOTAL RUBIA TIR 7400","MOBILFLUID 424"],
+  list_chemicals:[
+    "SODA ASH",
+    "TUNNEL GEL PLUS",
+    "CLAY CUTTER",
+    "DRILLING BENTONITE-SUPER GEL-X",
+    "HYDRAULIC EZ",
+    "SWELL WELL SW150",
+    "SUSPEND IT",
+    "CAL",
+    "PAC-L",
+    "TUNNEL LUPE",
+    "CEBO IPR-503",
+    "F-SEAL 20KG/BAG"
+  ],
+  list_machines:[
+    "CRANE 7737-B-50",
+    "MANITOU",
+    "TRUCK",
+    "TGCC",
+    "ATLAS COPCO",
+    "HIMOINSA",
+    "EXPRESS SAFI",
+    "EXPRESS CASABLANCA",
+    "MUTSHIBISHI CASABLANCA",
+    "CAMION"
+  ],
+  list_cats:["Pompe","Filtres","Moteur","Electricité","Hydraulique","Générateur","Divers"]
+};
+async function ensureSeeds(listName) {
+  // Check, if missing, add required items
+  const docRef = db.collection("lists").doc(listName);
+  const doc = await docRef.get();
+  let arr = doc.exists ? doc.data().arr||[] : [];
+  let missing = (listSeeds[listName]||[]).filter(s=> !arr.includes(s));
+  if (missing.length) {
+    arr = Array.from(new Set([...arr, ...missing]));
+    await docRef.set({arr});
+  }
+  return arr;
+}
+// Add entry if requested
+async function addToList(listName, newItem){
+  if(!newItem)return;
+  const docRef = db.collection("lists").doc(listName);
+  const doc = await docRef.get();
+  let arr = doc.exists ? doc.data().arr||[] : [];
+  if(!arr.includes(newItem)){
+    arr.push(newItem);
+    await docRef.set({arr});
+  }
+  return arr;
+}
+
+// Helper - Generic Dropdown Render w/ "+"
+async function renderDropdown(listName, sel, id, onChange){
+  const arr = await ensureSeeds(listName);
+  sel.innerHTML = arr.map(item=>`<option>${item}</option>`).join('') 
+      + '<option value="">- Autre... -</option>';
+  sel.value = arr[0]||"";
+  if(onChange) sel.onchange=onChange;
+  // "+" button logic
+  if(!sel.nextElementSibling || !sel.nextElementSibling.classList.contains('add-btn')){
+    const btn = document.createElement('button');
+    btn.className = "add-btn"; btn.textContent = "+";
+    btn.title = "Ajouter un élément à la liste";
+    btn.onclick= async ev=>{
+      ev.preventDefault();
+      let name = prompt("Entrer nouveau nom à ajouter à la liste:");
+      if(name && name.trim()){
+         await addToList(listName, name.trim());
+         await renderDropdown(listName, sel, id, onChange);
+         sel.value = name.trim();
+      }
+    };
+    sel.parentNode.insertBefore(btn,sel.nextSibling);
+  }
+}
+
+// ==== CRUD SECTIONS
+
+let panelAlreadyLoaded = {}; // Mark section for dashboard, etc.
+async function loadPanel(name) {
+  if(panelAlreadyLoaded[name])return;
+  switch(name){
+    case "dashboard":await loadDashboard();break;
+    case "oils":await loadOils();break;
+    case "chemicals":await loadChemicals();break;
+    case "stock":await loadStock();break;
+    case "sortie":await loadSortie();break;
+    case "gasoil":await loadGasoil();break;
+    case "history":await loadHistory();break;
+  }
+  panelAlreadyLoaded[name]=true;
+}
+window.addEventListener('DOMContentLoaded', ()=>{ loadPanel("dashboard"); });
+
+async function loadDashboard(){
+  // Simple: stats cards for each inventory, diesel total
+  const dst = document.getElementById('dashboard-panel');
+  dst.innerHTML =
+    `
+    <h2>Tableau de Bord</h2>
+    <div class="stats-cards" id="stats-cards">
+      <div class="stat-card"><h4>Huiles</h4><div class="stat" id="stat-oil">...</div></div>
+      <div class="stat-card"><h4>Chimie</h4><div class="stat" id="stat-ben">...</div></div>
+      <div class="stat-card"><h4>Stock Matériel</h4><div class="stat" id="stat-part">...</div></div>
+      <div class="stat-card"><h4><span style='color:var(--accent2)'>Gasoil</span> (L)</h4><div class="stat" id="stat-diesel">...</div></div>
     </div>
+    `;
+  // Oil
+  db.collection("inventory_oil").get().then(q=>{
+    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
+    document.getElementById("stat-oil").textContent=tot;
+  });
+  // Chem
+  db.collection("inventory_ben").get().then(q=>{
+    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
+    document.getElementById("stat-ben").textContent=tot;
+  });
+  // Parts
+  db.collection("inventory_stock").get().then(q=>{
+    const tot = q.docs.reduce((s,doc)=>s+(Number(doc.data().qty)||0),0);
+    document.getElementById("stat-part").textContent=tot;
+  });
+  // Gasoil
+  db.collection("gasoil_total").doc("global").get().then(doc=>{
+    document.getElementById("stat-diesel").textContent=doc.exists ? doc.data().qty||0 : "0";
+  });
+}
 
-    <div class="sidebar">
-        <div class="logo">EUROHINCA</div>
-        <div class="menu">
-            <div class="menu-item active" data-target="dashboard"><i class="fas fa-chart-pie"></i> Tableau de Bord</div>
-            <div class="menu-item" data-target="huiles"><i class="fas fa-oil-can"></i> Huiles & Graisses</div>
-            <div class="menu-item" data-target="bentonite"><i class="fas fa-flask"></i> Bentonite & Chimie</div>
-            <div class="menu-item" data-target="stock"><i class="fas fa-cubes"></i> Stock Matériel</div>
-            <div class="menu-item" data-target="sortie"><i class="fas fa-dolly-flatbed"></i> Sortie Matériel</div>
-            <div class="menu-item" data-target="gasoil"><i class="fas fa-gas-pump"></i> Gestion Gasoil</div>
-            <div class="menu-item" data-target="activity"><i class="fas fa-history"></i> Historique</div>
-        </div>
+// ---- Oils Panel (inventory_oil)
+async function loadOils(){
+  const dst = document.getElementById('oils-panel');
+  dst.innerHTML = `
+   <h2>Huiles &amp; Graisses</h2>
+   <form id="oil-form">
+    <div class="form-row">
+      <label>Type:
+        <select id="oil-type"></select>
+      </label>
+      <label>Quantité: <input type="number" min="1" required id="oil-qty"></label>
+      <label>Unité:
+        <select id="oil-unit">
+          <option>L</option>
+          <option>kg</option>
+        </select>
+      </label>
+      <label>Alerte: <input type="number" id="oil-alert" min="0" value="0"></label>
+      <label>Date: <input type="date" id="oil-date" value="${nowDate()}"></label>
+      <button type="submit">Ajouter</button>
     </div>
+   </form>
+   <table class="data-table" id="oil-table">
+     <thead><tr><th>Type</th><th>Qte</th><th>Unité</th><th>Date</th><th>Utilisateur</th></tr></thead>
+     <tbody></tbody>
+   </table>
+  `;
+  await renderDropdown("list_oils",document.getElementById('oil-type'),'oil-type');
+  const form = document.getElementById('oil-form');
+  const tableBody = document.querySelector('#oil-table tbody');
+  // List
+  db.collection("inventory_oil").orderBy("date","desc").limit(30).onSnapshot(qs=>{
+    tableBody.innerHTML = qs.docs.map(doc=>{
+      const d = doc.data();
+      return `<tr>
+        <td>${d.type}</td>
+        <td>${d.qty}</td>
+        <td>${d.unit}</td>
+        <td>${d.date}</td>
+        <td>${d.user||""}</td>
+      </tr>`;
+    }).join('');
+  });
+  // Add entry
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const d = {
+      type: form['oil-type'].value,
+      qty: Number(form['oil-qty'].value),
+      unit: form['oil-unit'].value,
+      alert: Number(form['oil-alert'].value)||0,
+      date: form['oil-date'].value,
+      user: getUser()
+    };
+    await db.collection("inventory_oil").add(d);
+    await db.collection("log_activity").add({act:"Ajout Huile",...d,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    form.reset();
+    form['oil-date'].value=nowDate();
+  };
+}
 
-    <div class="content">
-        <div class="header">
-            <h1 id="page-title" style="margin:0; font-size: 24px;">Tableau de Bord</h1>
-            <div class="user-pill"><i class="fas fa-user-circle"></i> <span id="current-user-display">Invité</span></div>
-        </div>
-
-        <div id="dashboard" class="section">
-            <div class="stats">
-                <div class="stat-box" style="border-top: 4px solid #2563eb;"><div class="stat-num" id="st-oil">0</div><div>Huiles</div></div>
-                <div class="stat-box" style="border-top: 4px solid #eab308;"><div class="stat-num" id="st-ben">0</div><div>Chimie</div></div>
-                <div class="stat-box" style="border-top: 4px solid #10b981;"><div class="stat-num" id="st-mat">0</div><div>Matériel</div></div>
-                <div class="stat-box" style="border-top: 4px solid #ef4444;"><div class="stat-num" id="st-gas">0</div><div>Gasoil (L)</div></div>
-            </div>
-            
-            <div class="card">
-                <h3><i class="fas fa-database"></i> Initialisation (Si la base est vide)</h3>
-                <p>Cliquez ici pour charger les listes (Soda Ash, Atlas Copco, etc.) dans Firebase.</p>
-                <button class="btn btn-save" style="background:#8b5cf6;" id="btn-seed">Charger Listes</button>
-            </div>
-        </div>
-
-        <div id="huiles" class="section hidden">
-            <div class="card">
-                <h3>Gestion Huiles</h3>
-                <form id="form-oil">
-                    <input type="hidden" id="oil_id">
-                    <div class="grid-form">
-                        <div class="field"><label>Produit</label><div style="display:flex; gap:5px;"><select id="oil_name"></select><button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_oils', 'oil_name')"><i class="fas fa-plus"></i></button></div></div>
-                        <div class="field"><label>Quantité</label><input type="number" id="oil_qty"></div>
-                        <div class="field"><label>Unité</label><input type="text" id="oil_unit"></div>
-                        <div class="field"><label>Alerte</label><input type="number" id="oil_alert" value="2"></div>
-                    </div>
-                    <div class="btn-row"><button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-oil')">Nouveau</button><button type="button" class="btn btn-save" onclick="window.app.saveOil()">Enregistrer</button></div>
-                </form>
-            </div>
-            <div class="card">
-                <h3>Inventaire <button class="btn" style="background:#217346; padding:4px 8px;" onclick="window.app.exportTable('table-oil','Huile')">Excel</button></h3>
-                <div style="overflow-x:auto;"><table id="table-oil"><thead><tr><th>Nom</th><th>Qté</th><th>Unité</th><th>Seuil</th><th>Date</th><th>Action</th></tr></thead><tbody></tbody></table></div>
-            </div>
-        </div>
-
-        <div id="bentonite" class="section hidden">
-            <div class="card">
-                <h3>Gestion Bentonite</h3>
-                <form id="form-ben">
-                    <input type="hidden" id="ben_id">
-                    <div class="grid-form">
-                        <div class="field"><label>Produit</label><div style="display:flex; gap:5px;"><select id="ben_name"></select><button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_chemicals', 'ben_name')"><i class="fas fa-plus"></i></button></div></div>
-                        <div class="field"><label>Quantité</label><input type="number" id="ben_qty"></div>
-                        <div class="field"><label>Unité</label><input type="text" id="ben_unit"></div>
-                        <div class="field"><label>Alerte</label><input type="number" id="ben_alert" value="50"></div>
-                    </div>
-                    <div class="btn-row"><button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-ben')">Nouveau</button><button type="button" class="btn btn-save" onclick="window.app.saveBen()">Enregistrer</button></div>
-                </form>
-            </div>
-            <div class="card">
-                <h3>Inventaire <button class="btn" style="background:#217346; padding:4px 8px;" onclick="window.app.exportTable('table-ben','Chimie')">Excel</button></h3>
-                <div style="overflow-x:auto;"><table id="table-ben"><thead><tr><th>Nom</th><th>Qté</th><th>Unité</th><th>Seuil</th><th>Date</th><th>Action</th></tr></thead><tbody></tbody></table></div>
-            </div>
-        </div>
-
-        <div id="gasoil" class="section hidden">
-            <div class="card">
-                <h3>Gestion Gasoil</h3>
-                <div style="background:#eff6ff; padding:15px; margin-bottom:15px; border-radius:8px; color:#1e40af; font-weight:bold; display:flex; justify-content:space-between;">
-                    <span>Stock: <span id="gas_val">...</span> Litres</span>
-                    <button style="border:none; background:none; cursor:pointer; color:#2563eb;" onclick="window.app.editGasoilStock()"><i class="fas fa-pen"></i></button>
-                </div>
-                <form id="form-gasoil">
-                    <div class="grid-form">
-                        <div class="field"><label>Machine</label><div style="display:flex; gap:5px;"><select id="gas_machine"></select><button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_machines', 'gas_machine')"><i class="fas fa-plus"></i></button></div></div>
-                        <div class="field"><label>Shift</label><select id="gas_shift"><option>Day</option><option>Night</option></select></div>
-                        <div class="field"><label>Conso (L)</label><input type="number" id="gas_conso"></div>
-                        <div class="field"><label>Date/Heure</label><div style="display:flex; gap:5px;"><input type="date" id="gas_date"><input type="time" id="gas_time"></div></div>
-                    </div>
-                    <div class="btn-row"><button type="button" class="btn btn-save" style="background:#ef4444;" onclick="window.app.saveGasoil()">Valider Conso</button></div>
-                </form>
-            </div>
-            <div class="card">
-                <h3>Historique <button class="btn" style="background:#217346; padding:4px 8px;" onclick="window.app.exportTable('table-gasoil','Gasoil')">Excel</button></h3>
-                <div style="overflow-x:auto;"><table id="table-gasoil"><thead><tr><th>Date</th><th>Heure</th><th>Machine</th><th>Shift</th><th>Conso</th><th>User</th></tr></thead><tbody></tbody></table></div>
-            </div>
-        </div>
-
-        <div id="stock" class="section hidden">
-            <div class="card">
-                <h3>Stock Matériel</h3>
-                <form id="form-stock"><input type="hidden" id="stk_id">
-                    <div class="grid-form">
-                        <div class="field"><label>Désignation</label><input type="text" id="stk_des"></div>
-                        <div class="field"><label>Catégorie</label><div style="display:flex; gap:5px;"><select id="stk_cat"></select><button type="button" class="btn-plus" onclick="window.app.addDynamicItem('list_cats', 'stk_cat')"><i class="fas fa-plus"></i></button></div></div>
-                        <div class="field"><label>Qté</label><input type="number" id="stk_qty"></div>
-                        <div class="field"><label>Emplacement</label><input type="text" id="stk_loc"></div>
-                        <div class="field"><label>Seuil</label><input type="number" id="stk_alert" value="5"></div>
-                    </div>
-                    <div class="btn-row"><button type="button" class="btn btn-reset" onclick="window.app.resetForm('form-stock')">Reset</button><button type="button" class="btn btn-save" onclick="window.app.saveStock()">Enregistrer</button></div>
-                </form>
-            </div>
-            <div class="card"><h3>Liste</h3><table id="table-stock"><thead><tr><th>Nom</th><th>Cat</th><th>Loc</th><th>Qté</th><th>Seuil</th><th>Action</th></tr></thead><tbody></tbody></table></div>
-        </div>
-
-        <div id="sortie" class="section hidden">
-            <div class="card">
-                <h3>Sortie Matériel</h3>
-                <form id="form-sortie">
-                    <div class="grid-form">
-                        <div class="field"><label>Produit</label><input type="text" id="sort_nom"></div>
-                        <div class="field"><label>Qté</label><input type="number" id="sort_qty"></div>
-                        <div class="field"><label>Destination</label><select id="sort_dest"><option>Chantier</option><option>Atelier</option><option>Casablanca</option></select></div>
-                        <div class="field"><label>Reçu par</label><input type="text" id="sort_rec"></div>
-                    </div>
-                    <div class="btn-row"><button type="button" class="btn btn-save" onclick="window.app.saveSortie()">Valider Sortie</button></div>
-                </form>
-            </div>
-            <div class="card"><h3>Historique Sorties</h3><table id="table-sortie"><thead><tr><th>Produit</th><th>Qté</th><th>Dest</th><th>Reçu par</th><th>Date</th></tr></thead><tbody></tbody></table></div>
-        </div>
-
-        <div id="activity" class="section hidden">
-            <div class="card"><h3>Historique Global</h3><table id="table-act"><thead><tr><th>Date</th><th>Heure</th><th>User</th><th>Action</th><th>Détails</th></tr></thead><tbody></tbody></table></div>
-        </div>
-
+// ---- Chemicals Panel (inventory_ben)
+async function loadChemicals(){
+  const dst = document.getElementById('chemicals-panel');
+  dst.innerHTML = `
+   <h2>Bentonite &amp; Chimie</h2>
+   <form id="chem-form">
+    <div class="form-row">
+      <label>Nom:
+        <select id="chem-nom"></select>
+      </label>
+      <label>Quantité: <input type="number" min="1" required id="chem-qty"></label>
+      <label>Unité:
+        <select id="chem-unit">
+          <option>kg</option>
+          <option>L</option>
+          <option>u</option>
+        </select>
+      </label>
+      <label>Alerte: <input type="number" id="chem-alert" min="0" value="0"></label>
+      <label>Date: <input type="date" id="chem-date" value="${nowDate()}"></label>
+      <button type="submit">Ajouter</button>
     </div>
+   </form>
+   <table class="data-table" id="chem-table">
+     <thead><tr><th>Nom</th><th>Qte</th><th>Unité</th><th>Date</th><th>Utilisateur</th></tr></thead>
+     <tbody></tbody>
+   </table>
+  `;
+  await renderDropdown("list_chemicals",document.getElementById('chem-nom'),'chem-nom');
+  const form = document.getElementById('chem-form');
+  const tableBody = document.querySelector('#chem-table tbody');
+  db.collection("inventory_ben").orderBy("date","desc").limit(30).onSnapshot(qs=>{
+    tableBody.innerHTML = qs.docs.map(doc=>{
+      const d = doc.data();
+      return `<tr>
+        <td>${d.nom}</td>
+        <td>${d.qty}</td>
+        <td>${d.unit}</td>
+        <td>${d.date}</td>
+        <td>${d.user||""}</td>
+      </tr>`;
+    }).join('');
+  });
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const d = {
+      nom: form['chem-nom'].value,
+      qty: Number(form['chem-qty'].value),
+      unit: form['chem-unit'].value,
+      alert: Number(form['chem-alert'].value)||0,
+      date: form['chem-date'].value,
+      user: getUser()
+    };
+    await db.collection("inventory_ben").add(d);
+    await db.collection("log_activity").add({act:"Ajout Chimie",...d,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    form.reset(); form['chem-date'].value=nowDate();
+  };
+}
 
-    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
-    <script type="module" src="app.js"></script>
+// ---- Spare Parts Panel (inventory_stock)
+async function loadStock(){
+  const dst = document.getElementById('stock-panel');
+  dst.innerHTML=`
+   <h2>Stock Matériel</h2>
+   <form id="stock-form">
+    <div class="form-row">
+      <label>Nom:
+        <input required id="stock-des" placeholder="Désignation..."></label>
+      <label>Catégorie:
+        <select id="stock-cat"></select>
+      </label>
+      <label>Qte: <input type="number" min="1" required id="stock-qty"></label>
+      <label>Lieu: <input id="stock-loc"></label>
+      <label>Alerte: <input type="number" id="stock-alert" min="0" value="0"></label>
+      <label>Date: <input type="date" id="stock-date" value="${nowDate()}"></label>
+      <button type="submit">Ajouter</button>
+    </div>
+   </form>
+   <table class="data-table" id="stock-table">
+     <thead><tr><th>Nom</th><th>Catégorie</th><th>Qte</th><th>Lieu</th><th>Date</th><th>User</th></tr></thead>
+     <tbody></tbody>
+   </table>
+  `;
+  await renderDropdown("list_cats",document.getElementById('stock-cat'),'stock-cat');
+  const form = document.getElementById('stock-form');
+  const tableBody = document.querySelector('#stock-table tbody');
+  db.collection("inventory_stock").orderBy("date","desc").limit(30).onSnapshot(qs=>{
+    tableBody.innerHTML = qs.docs.map(doc=>{
+      const d = doc.data();
+      return `<tr>
+        <td>${d.des}</td>
+        <td>${d.cat}</td>
+        <td>${d.qty}</td>
+        <td>${d.loc||""}</td>
+        <td>${d.date}</td>
+        <td>${d.user||""}</td>
+      </tr>`;
+    }).join('');
+  });
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const d = {
+      des: form['stock-des'].value,
+      cat: form['stock-cat'].value,
+      qty: Number(form['stock-qty'].value),
+      loc: form['stock-loc'].value,
+      alert: Number(form['stock-alert'].value)||0,
+      date: form['stock-date'].value,
+      user: getUser()
+    };
+    await db.collection("inventory_stock").add(d);
+    await db.collection("log_activity").add({act:"Ajout Stock Matériel",...d,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    form.reset(); form['stock-date'].value=nowDate();
+  };
+}
+
+// ---- Sortie Matériel Panel (log_sortie)
+async function loadSortie(){
+  const dst = document.getElementById('sortie-panel');
+  dst.innerHTML = `
+    <h2>Sortie Matériel</h2>
+    <form id="sortie-form">
+      <div class="form-row">
+        <label>Nom Item: <input required id="sortie-nom" placeholder="Nom..."></label>
+        <label>Qte: <input type="number" min="1" required id="sortie-qty"></label>
+        <label>Destination: <input id="sortie-dest" required></label>
+        <label>Récepteur: <input id="sortie-rec" required></label>
+        <label>Date: <input type="date" id="sortie-date" value="${nowDate()}"></label>
+        <button type="submit">Sortir</button>
+      </div>
+    </form>
+    <table class="data-table" id="sortie-table">
+     <thead><tr><th>Nom</th><th>Qte</th><th>Dest</th><th>Récepteur</th><th>Date</th><th>User</th></tr></thead>
+     <tbody></tbody>
+   </table>
+  `;
+  const form = document.getElementById('sortie-form');
+  const tableBody = document.querySelector('#sortie-table tbody');
+  db.collection("log_sortie").orderBy("date","desc").limit(40).onSnapshot(qs=>{
+    tableBody.innerHTML = qs.docs.map(doc=>{
+      const d = doc.data();
+      return `<tr>
+        <td>${d.nom}</td>
+        <td>${d.qty}</td>
+        <td>${d.dest}</td>
+        <td>${d.rec}</td>
+        <td>${d.date}</td>
+        <td>${d.user||""}</td>
+      </tr>`;
+    }).join('');
+  });
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const d = {
+      nom: form['sortie-nom'].value,
+      qty: Number(form['sortie-qty'].value),
+      dest: form['sortie-dest'].value,
+      rec: form['sortie-rec'].value,
+      date: form['sortie-date'].value,
+      user: getUser()
+    };
+    await db.collection("log_sortie").add(d);
+    await db.collection("log_activity").add({act:"Sortie Matériel",...d,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    form.reset(); form['sortie-date'].value=nowDate();
+  };
+}
+
+// ---- Gasoil Panel (diesel logic, global stock, log_gasoil, manual edit)
+async function loadGasoil(){
+  const dst = document.getElementById('gasoil-panel');
+  // Manual reload of diesel total
+  const totalDoc = db.collection("gasoil_total").doc("global");
+  let lastValue = 0;
+  async function getTotalStock(){
+    const doc=await totalDoc.get();
+    return doc.exists?Number(doc.data().qty):0;
+  }
+  async function setTotalStock(val){
+    await totalDoc.set({qty:val});
+    return val;
+  }
+  // UI
+  dst.innerHTML=`
+    <h2>Gestion Gasoil (Diesel)</h2>
+    <div id="gasoil-total-wrap">
+      <b>Stock Gasoil Global (L): </b>
+      <span id="gasoil-total">?</span>
+      <input type="number" id="gasoil-edit" style="display:none;" min="0">
+      <input type="button" id="gasoil-edit-btn" value="Modifier" class="edit-btn">
+      <input type="button" id="gasoil-save-btn" value="Sauvegarder" style="display:none;">
+    </div>
+    <h3>Consommation</h3>
+    <form id="gasoil-form">
+      <div class="form-row">
+        <label>Machine:
+          <select id="gasoil-mac"></select>
+        </label>
+        <label>Service Heure:
+          <input type="text" id="gasoil-sh" placeholder="Heure actuelle...">
+        </label>
+        <label>Consommé (L):
+          <input type="number" min="1" required id="gasoil-conso">
+        </label>
+        <label>Date: <input type="date" id="gasoil-date" value="${nowDate()}"></label>
+        <label>Heure: <input type="text" id="gasoil-time" value="${nowTime()}" style="width:71px"></label>
+        <button type="submit">Ajouter</button>
+      </div>
+    </form>
+    <table class="data-table" id="gasoil-table">
+      <thead><tr><th>Machine</th><th>SH</th><th>Conso(L)</th><th>Date</th><th>Time</th><th>User</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  `;
+  // Machines dropdown
+  await renderDropdown("list_machines",document.getElementById('gasoil-mac'),'gasoil-mac');
+  // Diesel total load+edit+save
+  function showTotal(val){document.getElementById("gasoil-total").textContent = val;}
+  (await getTotalStock()).toString();
+  getTotalStock().then(val=>{lastValue=val;showTotal(val);});
+  document.getElementById("gasoil-edit-btn").onclick = ()=>{
+    document.getElementById("gasoil-edit").value = lastValue;
+    document.getElementById("gasoil-edit").style.display="inline-block";
+    document.getElementById("gasoil-save-btn").style.display="inline-block";
+    document.getElementById("gasoil-edit-btn").style.display="none";
+    document.getElementById("gasoil-total").style.display="none";
+  };
+  document.getElementById("gasoil-save-btn").onclick = async ()=>{
+    const v = Number(document.getElementById("gasoil-edit").value);
+    await setTotalStock(v);
+    lastValue = v; showTotal(v);
+    document.getElementById("gasoil-edit").style.display="none";
+    document.getElementById("gasoil-save-btn").style.display="none";
+    document.getElementById("gasoil-edit-btn").style.display="inline-block";
+    document.getElementById("gasoil-total").style.display="inline-block";
+    await db.collection("log_activity").add({act:"Modif Gasoil Total",qty:v,user:getUser(),timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+  };
+  // List consumption logs (log_gasoil)
+  db.collection("log_gasoil").orderBy("date","desc").limit(30).onSnapshot(qs=>{
+    document.querySelector('#gasoil-table tbody').innerHTML = qs.docs.map(doc=>{
+      const d=doc.data();
+      return `<tr>
+        <td>${d.mac}</td>
+        <td>${d.sh}</td>
+        <td>${d.conso}</td>
+        <td>${d.date}</td>
+        <td>${d.time||""}</td>
+        <td>${d.user||""}</td>
+      </tr>`;
+    }).join('');
+  });
+  // Consumption entry
+  const form = document.getElementById('gasoil-form');
+  form.onsubmit = async e=>{
+    e.preventDefault();
+    const d = {
+      mac: form["gasoil-mac"].value,
+      sh: form["gasoil-sh"].value,
+      conso: Number(form["gasoil-conso"].value),
+      date: form["gasoil-date"].value,
+      time: form["gasoil-time"].value,
+      user: getUser()
+    };
+    // Subtract from global gasoil
+    let tot = await getTotalStock(); 
+    let newTot = tot - d.conso;
+    newTot = newTot>0 ? newTot : 0;
+    await setTotalStock(newTot);
+    await db.collection("log_gasoil").add(d);
+    await db.collection("log_activity").add({act:"Consommation Gasoil",...d,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    form.reset(); form["gasoil-date"].value=nowDate(); form["gasoil-time"].value=nowTime();
+    showTotal(newTot); lastValue=newTot;
+  };
+}
+
+// ---- Historique Panel (log_activity)
+async function loadHistory(){
+  const dst = document.getElementById('history-panel');
+  dst.innerHTML="<h2>Historique des actions</h2><table class='data-table'><thead><tr><th>Date/Heure</th><th>Action</th><th>User</th><th>Détail</th></tr></thead><tbody id='history-body'></tbody></table>";
+  db.collection("log_activity").orderBy("timestamp","desc").limit(50).onSnapshot(qs=>{
+    const rows = qs.docs.map(doc=>{
+      const d = doc.data();
+      return `<tr>
+        <td>${d.timestamp ? (d.timestamp.toDate?d.timestamp.toDate().toLocaleString():d.timestamp):""}</td>
+        <td>${d.act||""}</td>
+        <td>${d.user||""}</td>
+        <td>${Object.entries(d).filter(([k])=>!['act','user','timestamp'].includes(k)).map(([k,v])=>`${k}: ${v}`).join(' | ')}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('history-body').innerHTML=rows;
+  });
+}
+  </script>
 </body>
 </html>
